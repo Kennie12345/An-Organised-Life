@@ -103,15 +103,15 @@ completion_value="Upper + Core|Hard", metadata grows over time.
 
 ## 5. Stat Dashboard
 
-**Screen:** Character view (secondary screen, tab or swipe from checklist).
+**Screen:** Pet view (secondary screen, tab or swipe from checklist).
 
-**Purpose:** Visual feedback on all 7 life domains. Numbers visible (Principle 6
+**Purpose:** Visual feedback on all 7 life domains — the pet's current condition. Numbers visible (Principle 6
 does not apply here — the user explicitly wants numbers).
 
 **Interaction:**
 - Each stat shown as: Name | current_value/100 | progress bar | trend arrow
 - Tap any stat to see: 30-day chart, contributing habits, recent logs
-- Character level shown prominently at top with XP bar
+- Pet level shown prominently at top with XP bar
 - Mood history visible as a small sparkline
 
 **Behavioural science:** Visible progress is a core motivator. Numbers make
@@ -251,20 +251,20 @@ navigable. The user can see what they achieved in any past week.
 
 ---
 
-## 12. Kingdom View (Optional)
+## 12. Habitat View (Optional)
 
-**Screen:** Accessible from character screen.
+**Screen:** Accessible from pet screen.
 
-**Purpose:** Visual representation of the character's overall state. Reflects
-stat levels as a text-described world. Low maintenance — updates automatically.
+**Purpose:** Visual representation of the pet's overall condition. Reflects
+stat levels as a text-described environment. Low maintenance — updates automatically.
 
 **Interaction:**
-- 7 areas of a simple kingdom, one per stat
+- 7 areas of the habitat, one per stat
 - Each area described in 1–2 sentences based on current_value
   - Above 75: thriving description
   - 50–75: stable description
   - 25–50: struggling description
-  - Below 25: falling apart description
+  - Below 25: deteriorating description
 - No input required from user — read-only view
 
 ---

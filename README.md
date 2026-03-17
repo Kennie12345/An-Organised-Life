@@ -1,14 +1,15 @@
-# An Organised Life RPG
+# An Organised Life
 
-> A behavioural science-grounded life organisation system built as an RPG. Turn habits, goals, and routines into a character you level up.
+> A behavioural science-grounded life organisation system. Raise a pet whose condition mirrors your real life — tend to your habits and it thrives; neglect them and it weakens.
 
 ---
 
 ## What This Is
 
-A Progressive Web App (PWA) that gamifies personal life management using behavioural science. You build and maintain a single RPG character whose stats reflect real-life domains. Daily habits, goals, and routines are the gameplay. The character is a mirror of your actual life.
+A behavioural engine that looks like a tamagotchi. You raise and care for a pet whose condition reflects real-life domains. Daily habits, goals, and routines are the gameplay. The pet is a mirror of your actual life.
 
-The app is not a task manager. It is a behavioural engine that looks like a game.
+**Current delivery:** Progressive Web App (PWA) — installable on iOS and Android via browser, works offline.
+**Vision:** Native iOS, Android, and SaaS versions. The core logic is platform-agnostic by design.
 
 ## Who It's For
 
@@ -23,10 +24,10 @@ The behavioural mechanics are grounded in executive function research, making th
 
 ## Core Concepts
 
-- **One character** you level up across 7 life domains (fully configurable)
+- **One pet** you raise across 7 life domains (fully configurable)
 - **Habit stacking** — daily habits run in sequences, not flat checklists
 - **Commitment devices** — goals require upfront stakes you write yourself
-- **Levels rise and fall** — maintenance is part of the game
+- **Pet health rises and falls** — consistent care strengthens it; neglect weakens it
 - **LLM coaching** via Claude — adds depth, never gates rewards
 - **Google Calendar integration** — time blocks are real commitments
 - **Templates** — share and fork your setup with others
@@ -51,11 +52,12 @@ Full documentation in [`/docs/04-behavioural-science.md`](docs/04-behavioural-sc
 
 | Layer | Technology |
 |---|---|
-| Frontend | Next.js / React (PWA, installable on iOS) |
-| Storage | IndexedDB (Dexie.js) — local-first, offline-capable |
+| Frontend | Next.js / React (PWA — v1 delivery target) |
+| Backend | Supabase (Postgres + Auth + RLS) — source of truth |
+| Offline cache | IndexedDB (Dexie.js) — offline write buffer, syncs to Supabase |
 | LLM | Claude API (Anthropic) |
 | Calendar | Google Calendar API (read-write) |
-| Backend | None at MVP — local only. Supabase planned for sync/multi-device |
+| Hosting | Vercel (frontend) + Supabase Cloud (backend) |
 
 ## Documentation
 
@@ -72,9 +74,20 @@ All design documentation lives in [`/docs`](docs/):
 | `06-tech-stack.md` | Architecture decisions and rationale |
 | `07-change-protocol.md` | How to evaluate proposed changes |
 
+## Platform Roadmap
+
+| Version | Platform |
+|---|---|
+| v1 (current) | PWA — installable via browser on iOS and Android |
+| v2 | Native iOS app |
+| v3 | Native Android app |
+| v4 | SaaS (multi-user, team templates) |
+
+The data layer (Supabase) and business logic (utilities) are intentionally decoupled from the PWA delivery layer to support this roadmap without a rewrite.
+
 ## Status
 
-Design complete. Build not yet started.
+Phase 1 — Foundation in progress.
 Last design review: 2026-03-17
 
 ## License

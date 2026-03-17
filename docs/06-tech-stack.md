@@ -2,8 +2,23 @@
 
 ## Platform Target
 
-Progressive Web App (PWA) installable on iOS via Safari. Designed for use
-on iPad (primary) and iPhone. Desktop browser also supported.
+**v1 — Progressive Web App (PWA).** Installable on iOS via Safari and on
+Android via Chrome. Designed for use on iPad (primary) and iPhone. Desktop
+browser also supported.
+
+**Platform roadmap:**
+
+| Version | Platform |
+|---|---|
+| v1 | PWA (current) |
+| v2 | Native iOS app |
+| v3 | Native Android app |
+| v4 | SaaS (multi-user, public templates) |
+
+The data layer (Supabase) and all business logic (XP engine, leveling curve,
+decay, sync) are platform-agnostic by design. The Next.js / React layer is
+the only PWA-specific piece. Future native apps will consume the same
+Supabase backend and reuse the utility functions.
 
 ---
 

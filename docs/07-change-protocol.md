@@ -140,6 +140,10 @@ these docs must be able to build the system from them without ambiguity.
 | 2026-03-17 | Initial design complete | All | Accepted — baseline established |
 | 2026-03-17 | Data architecture: Supabase as source of truth, IndexedDB as offline cache, manual sync, conflict detection on session start. Framework changed to Next.js. | Principle 5 (strengthened — cross-device capture) | Accepted — cross-device was a day-one requirement, not post-MVP |
 
+| 2026-03-17 | Platform roadmap clarified: PWA is v1 delivery only. Native iOS (v2), Android (v3), SaaS (v4) are long-term vision. Core logic kept platform-agnostic. | None — delivery layer only | Accepted — vision confirmed as pre-existing, not a new impulse |
+
+| 2026-03-17 | Game layer re-skinned from hero RPG to tamagotchi/pet-raising. "Character" → "Pet", "Kingdom" → "Habitat". Level drop framed as pet weakening through neglect. All mechanics unchanged — purely a thematic layer. | Principle 7 (strengthened — emotional hook of pet neglect is more visceral than a dropping number) | Accepted |
+
 *(Add new rows here as changes are made)*
 
 ---

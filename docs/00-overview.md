@@ -2,10 +2,16 @@
 
 ## What This Is
 
-A Progressive Web App (PWA) that gamifies personal life management using
-behavioural science. Users build and maintain a single RPG character whose
-stats reflect real-life domains. Daily habits, goals, and routines are the
-gameplay. The character is a mirror of the person's actual life.
+A behavioural engine that gamifies personal life management using behavioural
+science. Users raise and care for a pet whose condition reflects real-life
+domains. Daily habits, goals, and routines are the gameplay. The pet is a
+mirror of the person's actual life — neglect it and it weakens; tend to it
+consistently and it thrives.
+
+**v1 delivery platform:** Progressive Web App (PWA) — installable on iOS and
+Android via browser, works offline. The core logic is intentionally
+platform-agnostic. Native iOS, Android, and SaaS versions are the long-term
+vision. Nothing in the data layer or business logic is coupled to the PWA.
 
 ## Who This Is For
 
@@ -57,13 +63,13 @@ Three behavioural frameworks underpin everything:
 
 ## The Game Layer
 
-- **Character**: one character, one level, reflects overall life consistency
-- **Stats**: 7 life domains rendered as condition bars (0-100)
+- **Pet**: one pet, one level, reflects overall life consistency
+- **Stats**: 7 life domains rendered as condition bars (0-100) — the pet's health across life areas
 - **XP**: earned by completing habits and tasks, variable in amount
-- **Levels**: rise with consistency, fall with neglect — maintenance is gameplay
+- **Levels**: rise with consistency, fall with neglect — the pet weakens when ignored
 - **Loot Drops**: random rewards on habit completion (~25% base chance)
 - **Habit Maturity**: habits gain potency over 66+ days of consistency
-- **Kingdom**: text-based world that reflects character stats (optional view)
+- **Habitat**: text-based world that reflects pet condition (optional view)
 
 ## The Commitment Layer
 
