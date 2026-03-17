@@ -40,3 +40,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# internal project management (personal, not for public repo)
+/project/
+/.claude/
+.mcp.json
+CLAUDE.md
+20220114 Daily Planner.pdf

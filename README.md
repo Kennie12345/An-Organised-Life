@@ -1,109 +1,82 @@
-<a href="https://demo-nextjs-with-supabase.vercel.app/">
-  <img alt="Next.js and Supabase Starter Kit - the fastest way to build apps with Next.js and Supabase" src="https://demo-nextjs-with-supabase.vercel.app/opengraph-image.png">
-  <h1 align="center">Next.js and Supabase Starter Kit</h1>
-</a>
+# An Organised Life RPG
 
-<p align="center">
- The fastest way to build apps with Next.js and Supabase
-</p>
+> A behavioural science-grounded life organisation system built as an RPG. Turn habits, goals, and routines into a character you level up.
 
-<p align="center">
-  <a href="#features"><strong>Features</strong></a> ·
-  <a href="#demo"><strong>Demo</strong></a> ·
-  <a href="#deploy-to-vercel"><strong>Deploy to Vercel</strong></a> ·
-  <a href="#clone-and-run-locally"><strong>Clone and run locally</strong></a> ·
-  <a href="#feedback-and-issues"><strong>Feedback and issues</strong></a>
-  <a href="#more-supabase-examples"><strong>More Examples</strong></a>
-</p>
-<br/>
+---
 
-## Features
+## What This Is
 
-- Works across the entire [Next.js](https://nextjs.org) stack
-  - App Router
-  - Pages Router
-  - Proxy
-  - Client
-  - Server
-  - It just works!
-- supabase-ssr. A package to configure Supabase Auth to use cookies
-- Password-based authentication block installed via the [Supabase UI Library](https://supabase.com/ui/docs/nextjs/password-based-auth)
-- Styling with [Tailwind CSS](https://tailwindcss.com)
-- Components with [shadcn/ui](https://ui.shadcn.com/)
-- Optional deployment with [Supabase Vercel Integration and Vercel deploy](#deploy-your-own)
-  - Environment variables automatically assigned to Vercel project
+A Progressive Web App (PWA) that gamifies personal life management using behavioural science. You build and maintain a single RPG character whose stats reflect real-life domains. Daily habits, goals, and routines are the gameplay. The character is a mirror of your actual life.
 
-## Demo
+The app is not a task manager. It is a behavioural engine that looks like a game.
 
-You can view a fully working demo at [demo-nextjs-with-supabase.vercel.app](https://demo-nextjs-with-supabase.vercel.app/).
+## Who It's For
 
-## Deploy to Vercel
+Anyone who wants to build a better life and has found that conventional productivity systems don't stick — particularly people who:
 
-Vercel deployment will guide you through creating a Supabase account and project.
+- Over-commit to goals and abandon them quickly
+- Experience cascade failure (one domain failing bleeds into all others)
+- Struggle to start habits, not continue them
+- Need external structure to turn intentions into actions
 
-After installation of the Supabase integration, all relevant environment variables will be assigned to the project so the deployment is fully functioning.
+The behavioural mechanics are grounded in executive function research, making them especially effective for people who organise their life with effort rather than instinct.
 
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&project-name=nextjs-with-supabase&repository-name=nextjs-with-supabase&demo-title=nextjs-with-supabase&demo-description=This+starter+configures+Supabase+Auth+to+use+cookies%2C+making+the+user%27s+session+available+throughout+the+entire+Next.js+app+-+Client+Components%2C+Server+Components%2C+Route+Handlers%2C+Server+Actions+and+Middleware.&demo-url=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2F&external-id=https%3A%2F%2Fgithub.com%2Fvercel%2Fnext.js%2Ftree%2Fcanary%2Fexamples%2Fwith-supabase&demo-image=https%3A%2F%2Fdemo-nextjs-with-supabase.vercel.app%2Fopengraph-image.png)
+## Core Concepts
 
-The above will also clone the Starter kit to your GitHub, you can clone that locally and develop locally.
+- **One character** you level up across 7 life domains (fully configurable)
+- **Habit stacking** — daily habits run in sequences, not flat checklists
+- **Commitment devices** — goals require upfront stakes you write yourself
+- **Levels rise and fall** — maintenance is part of the game
+- **LLM coaching** via Claude — adds depth, never gates rewards
+- **Google Calendar integration** — time blocks are real commitments
+- **Templates** — share and fork your setup with others
 
-If you wish to just develop locally and not deploy to Vercel, [follow the steps below](#clone-and-run-locally).
+## Behavioural Science
 
-## Clone and run locally
+Every mechanic is grounded in peer-reviewed research:
 
-1. You'll first need a Supabase project which can be made [via the Supabase dashboard](https://database.new)
+| Mechanic | Research |
+|---|---|
+| Habit sequences | Fogg (2019), Clear (2018) — habit stacking |
+| Habit maturity model | Lally et al. (2010) — 66-day formation curve |
+| Variable XP & loot drops | Skinner (1938) — variable ratio reinforcement |
+| Commitment stakes | Ariely & Wertenbroch (2002), Thaler & Sunstein (2008) |
+| Goal creation flow | Gollwitzer (1999) — implementation intentions |
+| WOOP goal structure | Oettingen (2014) — mental contrasting |
+| Low-friction capture | Allen (2001) — GTD trusted capture system |
 
-2. Create a Next.js app using the Supabase Starter template npx command
+Full documentation in [`/docs/04-behavioural-science.md`](docs/04-behavioural-science.md).
 
-   ```bash
-   npx create-next-app --example with-supabase with-supabase-app
-   ```
+## Tech Stack
 
-   ```bash
-   yarn create next-app --example with-supabase with-supabase-app
-   ```
+| Layer | Technology |
+|---|---|
+| Frontend | Next.js / React (PWA, installable on iOS) |
+| Storage | IndexedDB (Dexie.js) — local-first, offline-capable |
+| LLM | Claude API (Anthropic) |
+| Calendar | Google Calendar API (read-write) |
+| Backend | None at MVP — local only. Supabase planned for sync/multi-device |
 
-   ```bash
-   pnpm create next-app --example with-supabase with-supabase-app
-   ```
+## Documentation
 
-3. Use `cd` to change into the app's directory
+All design documentation lives in [`/docs`](docs/):
 
-   ```bash
-   cd with-supabase-app
-   ```
+| File | Contents |
+|---|---|
+| `00-overview.md` | What this is, who it's for, full philosophy |
+| `01-design-principles.md` | The 8 non-negotiable design principles |
+| `02-schema.md` | Complete normalised data schema |
+| `03-features.md` | Feature specifications and interaction design |
+| `04-behavioural-science.md` | Research and theory behind each mechanic |
+| `05-default-config.md` | Default configuration |
+| `06-tech-stack.md` | Architecture decisions and rationale |
+| `07-change-protocol.md` | How to evaluate proposed changes |
 
-4. Rename `.env.example` to `.env.local` and update the following:
+## Status
 
-  ```env
-  NEXT_PUBLIC_SUPABASE_URL=[INSERT SUPABASE PROJECT URL]
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY=[INSERT SUPABASE PROJECT API PUBLISHABLE OR ANON KEY]
-  ```
-  > [!NOTE]
-  > This example uses `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`, which refers to Supabase's new **publishable** key format.
-  > Both legacy **anon** keys and new **publishable** keys can be used with this variable name during the transition period. Supabase's dashboard may show `NEXT_PUBLIC_SUPABASE_ANON_KEY`; its value can be used in this example.
-  > See the [full announcement](https://github.com/orgs/supabase/discussions/29260) for more information.
+Design complete. Build not yet started.
+Last design review: 2026-03-17
 
-  Both `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` can be found in [your Supabase project's API settings](https://supabase.com/dashboard/project/_?showConnect=true)
+## License
 
-5. You can now run the Next.js local development server:
-
-   ```bash
-   npm run dev
-   ```
-
-   The starter kit should now be running on [localhost:3000](http://localhost:3000/).
-
-6. This template comes with the default shadcn/ui style initialized. If you instead want other ui.shadcn styles, delete `components.json` and [re-install shadcn/ui](https://ui.shadcn.com/docs/installation/next)
-
-> Check out [the docs for Local Development](https://supabase.com/docs/guides/getting-started/local-development) to also run Supabase locally.
-
-## Feedback and issues
-
-Please file feedback and issues over on the [Supabase GitHub org](https://github.com/supabase/supabase/issues/new/choose).
-
-## More Supabase examples
-
-- [Next.js Subscription Payments Starter](https://github.com/vercel/nextjs-subscription-payments)
-- [Cookie-based Auth and the Next.js 13 App Router (free course)](https://youtube.com/playlist?list=PL5S4mPUpp4OtMhpnp93EFSo42iQ40XjbF)
-- [Supabase Auth and the Next.js App Router](https://github.com/supabase/supabase/tree/master/examples/auth/nextjs)
+MIT
