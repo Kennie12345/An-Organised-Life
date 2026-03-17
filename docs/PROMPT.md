@@ -3,7 +3,7 @@ A reusable session start prompt for the user to start a new claude session. This
 
 #PROMPT:
 `
-  Start a new working session on the An Organised Life RPG project.
+  Start a new working session on the An Organised Life project.
 
   1. Read /project/CURRENT_STATE.md
   2. Read /project/TASKS.md — find the current phase, locate the next uncompleted task

@@ -1,6 +1,6 @@
 # Change Protocol
 
-This document defines how proposed changes to An Organised Life RPG system are
+This document defines how proposed changes to the An Organised Life system are
 evaluated. It exists because:
 
 1. The user has ADHD and may propose changes impulsively (novelty-seeking)

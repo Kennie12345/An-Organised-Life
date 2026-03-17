@@ -1,4 +1,4 @@
-# An Organised Life RPG — Overview
+# An Organised Life — Overview
 
 ## What This Is
 
@@ -93,7 +93,7 @@ The LLM never gates a reward. It only adds depth.
 
 ## What Makes This Different From Habitica / Other Apps
 
-| Feature | An Organised Life RPG | Habitica | Notion | Habit trackers |
+| Feature | An Organised Life | Habitica | Notion | Habit trackers |
 |---|---|---|---|---|
 | Behavioural science-grounded | Yes | Partial | No | No |
 | Behavioural design for executive function | Yes | No | No | No |

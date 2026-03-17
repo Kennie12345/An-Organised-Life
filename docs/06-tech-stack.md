@@ -113,7 +113,7 @@ the device is offline.
 - Last 7 days of daily_plans (intentions, journal entries)
 - Completed unlinked tasks (for retrospective linking)
 - Notification effectiveness data (action_taken rates)
-- Character level and stat values
+- Pet level and stat values
 
 **At MVP:** API calls made via Next.js API routes (server-side). API key stored
 in environment variable on the server — never exposed to the client bundle.
@@ -138,7 +138,7 @@ in environment variable on the server — never exposed to the client bundle.
 ```json
 {
   "summary": "Morning Sequence",
-  "description": "An Organised Life RPG: Time for your morning habit sequence.",
+  "description": "An Organised Life: Time for your morning habit sequence.",
   "start": { "dateTime": "2026-03-18T07:00:00", "timeZone": "Australia/Sydney" },
   "end": { "dateTime": "2026-03-18T07:30:00", "timeZone": "Australia/Sydney" },
   "recurrence": ["RRULE:FREQ=DAILY"],
@@ -231,4 +231,4 @@ IndexedDB (user_integrations table).
 7. **Scratch pad + LLM integration** — the commitment layer
 8. **Google Calendar integration** — the time anchor layer
 9. **Onboarding + templates** — the sharing layer
-10. **Kingdom view** — optional, last
+10. **Habitat view** — optional, last

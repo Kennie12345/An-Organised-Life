@@ -154,7 +154,7 @@ Base loot drop rate is modified by habit_maturity.stage (see 02-schema.md).
 
 ```json
 {
-  "template_name": "Organised Life RPG — Default Template",
+  "template_name": "An Organised Life — Default Template",
   "version": 1,
   "description": "7-domain daily system covering health, home, finances, career,
                   relationships, spirituality, and learning. A starting point

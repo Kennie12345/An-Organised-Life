@@ -1,6 +1,6 @@
 # Data Schema
 
-Complete normalised schema for the An Organised Life RPG system. Implemented in Supabase
+Complete normalised schema for the An Organised Life system. Implemented in Supabase
 (PostgreSQL). All tables use UUID primary keys. Foreign keys are enforced by
 Postgres. Row-level security (RLS) is enabled on all tables — users can only
 read and write their own rows via `user_id = auth.uid()`.
@@ -21,14 +21,14 @@ First principles applied:
 
 ## users
 
-The character sheet. One row per user.
+The pet profile. One row per user.
 
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid PK | |
 | email | text unique | |
 | name | text | Real name |
-| character_name | text | RPG character name |
+| pet_name | text | Name the user gives their pet |
 | level | integer | Current level — can drop. Default 1 |
 | current_xp | integer | XP within current level — can drain. Default 0 |
 | lifetime_xp | integer | All-time XP earned — never decreases |
@@ -385,11 +385,11 @@ Definitions of possible reward types.
 | Column | Type | Notes |
 |---|---|---|
 | id | uuid PK | |
-| type | enum | xp_surge / stat_boost / rested_bonus / fortune / kingdom_upgrade |
+| type | enum | xp_surge / stat_boost / rested_bonus / fortune / habitat_upgrade |
 | name | text | |
 | description | text | |
 | rarity | enum | common / uncommon / rare |
-| min_level | integer | Only available from this character level. Default 1 |
+| min_level | integer | Only available from this pet level. Default 1 |
 | payload | JSON | e.g. {"xp_bonus": 50} or {"stat_id": "...", "boost": 5} |
 
 ---
