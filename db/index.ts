@@ -21,6 +21,7 @@ export type DbGoal                 = WithSyncedAt<Tables<'goals'>>
 export type DbGoalMetricTarget     = WithSyncedAt<Tables<'goal_metric_targets'>>
 export type DbGoalMilestone        = WithSyncedAt<Tables<'goal_milestones'>>
 export type DbGoalStep             = WithSyncedAt<Tables<'goal_steps'>>
+export type DbGoalStakeEffect      = WithSyncedAt<Tables<'goal_stake_effects'>>
 export type DbGoalHabitLink        = WithSyncedAt<Tables<'goal_habit_links'>>
 export type DbTask                 = WithSyncedAt<Tables<'tasks'>>
 export type DbLogbookMetric        = WithSyncedAt<Tables<'logbook_metrics'>>
@@ -61,6 +62,7 @@ export class OrganisedLifeDb extends Dexie {
   goal_metric_targets!: Table<DbGoalMetricTarget>
   goal_milestones!: Table<DbGoalMilestone>
   goal_steps!: Table<DbGoalStep>
+  goal_stake_effects!: Table<DbGoalStakeEffect>
   goal_habit_links!: Table<DbGoalHabitLink>
   tasks!: Table<DbTask>
   logbook_metrics!: Table<DbLogbookMetric>
@@ -107,6 +109,10 @@ export class OrganisedLifeDb extends Dexie {
       user_integrations:      'id, user_id, provider, updated_at, synced_at',
       templates:              'id, author_user_id, is_public, updated_at, synced_at',
       sync_queue:             '++id, table_name, record_id, queued_at',
+    })
+
+    this.version(2).stores({
+      goal_stake_effects:     'id, goal_id, stat_id, updated_at, synced_at',
     })
   }
 }

@@ -39,6 +39,7 @@ const SYNC_TABLE_MAP: Record<string, Table<SyncableRow>> = {
   goal_metric_targets:    db.goal_metric_targets    as Table<SyncableRow>,
   goal_milestones:        db.goal_milestones        as Table<SyncableRow>,
   goal_steps:             db.goal_steps             as Table<SyncableRow>,
+  goal_stake_effects:     db.goal_stake_effects     as Table<SyncableRow>,
   goal_habit_links:       db.goal_habit_links       as Table<SyncableRow>,
   tasks:                  db.tasks                  as Table<SyncableRow>,
   logbook_metrics:        db.logbook_metrics        as Table<SyncableRow>,

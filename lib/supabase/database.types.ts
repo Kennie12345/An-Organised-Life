@@ -61,6 +61,51 @@ export type Database = {
           },
         ]
       }
+      goal_stake_effects: {
+        Row: {
+          created_at: string
+          effect_value: number
+          goal_id: string
+          id: string
+          stat_id: string
+          trigger: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          effect_value: number
+          goal_id: string
+          id?: string
+          stat_id: string
+          trigger: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          effect_value?: number
+          goal_id?: string
+          id?: string
+          stat_id?: string
+          trigger?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "goal_stake_effects_goal_id_fkey"
+            columns: ["goal_id"]
+            isOneToOne: false
+            referencedRelation: "goals"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "goal_stake_effects_stat_id_fkey"
+            columns: ["stat_id"]
+            isOneToOne: false
+            referencedRelation: "stats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       goal_habit_links: {
         Row: {
           goal_id: string
@@ -219,12 +264,12 @@ export type Database = {
           commitment_score: number | null
           committed_at: string | null
           created_at: string
+          grace_period_unit: string
+          grace_period_value: number
           id: string
           name: string
           primary_stat_id: string | null
           scratch_pad_expires_at: string
-          stake_description: string | null
-          stake_type: string
           status: string
           target_date: string | null
           updated_at: string
@@ -235,12 +280,12 @@ export type Database = {
           commitment_score?: number | null
           committed_at?: string | null
           created_at?: string
+          grace_period_unit?: string
+          grace_period_value?: number
           id?: string
           name: string
           primary_stat_id?: string | null
           scratch_pad_expires_at: string
-          stake_description?: string | null
-          stake_type: string
           status?: string
           target_date?: string | null
           updated_at?: string
@@ -251,12 +296,12 @@ export type Database = {
           commitment_score?: number | null
           committed_at?: string | null
           created_at?: string
+          grace_period_unit?: string
+          grace_period_value?: number
           id?: string
           name?: string
           primary_stat_id?: string | null
           scratch_pad_expires_at?: string
-          stake_description?: string | null
-          stake_type?: string
           status?: string
           target_date?: string | null
           updated_at?: string
