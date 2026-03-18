@@ -18,7 +18,9 @@ Context:
 
 You are NOT a therapist. You are a coach who helps the user think clearly about what they actually want to commit to.`;
 
-const anthropic = new Anthropic();
+const anthropic = new Anthropic({
+  apiKey: process.env.ANTHROPIC_API_KEY,
+});
 
 export async function POST(req: NextRequest) {
   try {
@@ -49,7 +51,7 @@ Only output the score line after all 5 questions have been answered thoughtfully
         : SYSTEM_PROMPT;
 
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6-20250514",
+      model: "claude-sonnet-4-6",
       max_tokens: 512,
       system: systemPrompt,
       messages: messages.map((m: { role: string; content: string }) => ({

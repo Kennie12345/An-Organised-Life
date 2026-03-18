@@ -105,6 +105,10 @@ export default function InterrogationPage() {
           });
           const data = await res.json();
 
+          if (data.error) {
+            throw new Error(data.error);
+          }
+
           const conv: Message[] = [
             ...firstMessages,
             { role: "assistant", content: data.message },
@@ -172,6 +176,10 @@ export default function InterrogationPage() {
         }),
       });
       const data = await res.json();
+
+      if (data.error) {
+        throw new Error(data.error);
+      }
 
       const assistantMsg: Message = {
         role: "assistant",
