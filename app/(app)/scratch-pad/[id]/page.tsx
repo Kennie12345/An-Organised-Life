@@ -401,9 +401,33 @@ export default function InterrogationPage() {
         )}
       </div>
 
-      {/* Input */}
-      {commitmentScore === null && (
-        <div className="px-6 py-4 flex-shrink-0">
+      {/* Input + Actions */}
+      <div className="px-4 py-3 flex-shrink-0 space-y-2">
+        {/* Create Goal / Archive buttons — always visible after a few messages */}
+        {messages.length >= 3 && commitmentScore === null && (
+          <div className="flex gap-2">
+            <button
+              onClick={promoteToGoal}
+              className="flex-1 py-2.5 rounded-xl text-[13px] transition-opacity active:opacity-50"
+              style={{
+                backgroundColor: "hsl(var(--foreground))",
+                color: "hsl(var(--background))",
+              }}
+            >
+              Create Goal
+            </button>
+            <button
+              onClick={archiveItem}
+              className="px-4 py-2.5 rounded-xl text-[13px] text-muted-foreground active:opacity-50"
+              style={{ border: "1px solid hsl(var(--muted))" }}
+            >
+              Not now
+            </button>
+          </div>
+        )}
+
+        {/* Chat input */}
+        {commitmentScore === null && (
           <div className="flex items-end gap-2">
             <textarea
               value={input}
@@ -437,8 +461,8 @@ export default function InterrogationPage() {
               <Send size={16} />
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   );
 }

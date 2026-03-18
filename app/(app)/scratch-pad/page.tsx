@@ -270,89 +270,87 @@ export default function ScratchPadPage() {
         </div>
       )}
 
-      {/* Active items */}
-      {active.length === 0 && !showInput && (
+      {/* All items */}
+      {items.length === 0 && !showInput && (
         <div className="text-center py-12">
           <p className="text-[14px] text-muted-foreground mb-1">
-            No ideas in quarantine
+            No ideas yet
           </p>
           <p className="text-[12px] text-muted-foreground/60">
-            Capture an idea — it waits 24h before you can commit
+            Capture an idea to get started
           </p>
         </div>
       )}
 
-      {active.length > 0 && (
-        <div className="space-y-3 mb-8">
-          {active.map((item) => (
-            <button
-              key={item.id}
-              onClick={() => {
-                if (canInterrogate(item)) {
-                  router.push(`/scratch-pad/${item.id}`);
-                }
-              }}
-              disabled={!canInterrogate(item)}
-              className="w-full text-left px-4 py-3 rounded-lg transition-colors active:opacity-50"
-              style={{
-                border: "1px solid hsl(var(--muted))",
-                opacity: canInterrogate(item) ? 1 : 0.6,
-              }}
-            >
-              <div className="flex items-start justify-between gap-2">
-                <p className="text-[14px] line-clamp-2 flex-1">
-                  {item.raw_idea}
-                </p>
-                <StatusBadge status={item.status} />
-              </div>
-              <div className="flex items-center justify-between mt-2">
-                <TimeRemaining expiresAt={item.auto_archive_at} />
-                {canInterrogate(item) && (
-                  <span className="text-[11px] text-muted-foreground flex items-center gap-1">
-                    <MessageCircle size={11} />
-                    Begin interrogation
-                    <ChevronRight size={12} />
-                  </span>
-                )}
-                {!canInterrogate(item) && item.status === "pending" && (
-                  <span className="text-[10px] text-muted-foreground">
-                    Quarantine — wait 24h
-                  </span>
-                )}
-              </div>
-            </button>
-          ))}
-        </div>
-      )}
+      {items.length > 0 && (
+        <div className="space-y-2">
+          {items.map((item) => {
+            const canChat = canInterrogate(item);
+            const hasConversation = !!item.llm_conversation;
+            const tappable = canChat || hasConversation;
 
-      {/* Completed items */}
-      {completed.length > 0 && (
-        <div>
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-3">
-            History
-          </p>
-          <div className="space-y-2">
-            {completed.slice(0, 10).map((item) => (
-              <div
+            return (
+              <button
                 key={item.id}
-                className="flex items-center justify-between py-2"
+                onClick={() => {
+                  if (tappable) router.push(`/scratch-pad/${item.id}`);
+                }}
+                disabled={!tappable}
+                className="w-full text-left px-4 py-3 rounded-xl transition-colors active:opacity-50"
+                style={{
+                  border: "1px solid hsl(var(--muted))",
+                  opacity: tappable ? 1 : 0.5,
+                }}
               >
-                <div className="flex-1 min-w-0">
-                  <p className="text-[13px] text-muted-foreground truncate">
+                <div className="flex items-start justify-between gap-2">
+                  <p className="text-[14px] line-clamp-2 flex-1">
                     {item.raw_idea}
                   </p>
-                </div>
-                <div className="flex items-center gap-2 ml-2">
-                  {item.commitment_score !== null && (
-                    <span className="text-[11px] tabular-nums text-muted-foreground">
-                      {item.commitment_score}/10
-                    </span>
-                  )}
                   <StatusBadge status={item.status} />
                 </div>
-              </div>
-            ))}
-          </div>
+                <div className="flex items-center justify-between mt-2">
+                  {item.status !== "promoted" && item.status !== "archived" && (
+                    <TimeRemaining expiresAt={item.auto_archive_at} />
+                  )}
+                  {item.status === "promoted" && (
+                    <span className="text-[10px]" style={{ color: "hsl(152 60% 48%)" }}>
+                      Goal created
+                    </span>
+                  )}
+                  {item.status === "archived" && (
+                    <span className="text-[10px] text-muted-foreground/50">
+                      Archived
+                    </span>
+                  )}
+                  {canChat && !hasConversation && (
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <MessageCircle size={11} />
+                      Plan this
+                      <ChevronRight size={12} />
+                    </span>
+                  )}
+                  {canChat && hasConversation && (
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      <MessageCircle size={11} />
+                      Continue
+                      <ChevronRight size={12} />
+                    </span>
+                  )}
+                  {hasConversation && !canChat && (
+                    <span className="text-[11px] text-muted-foreground flex items-center gap-1">
+                      View conversation
+                      <ChevronRight size={12} />
+                    </span>
+                  )}
+                  {!canChat && !hasConversation && item.status === "pending" && (
+                    <span className="text-[10px] text-muted-foreground">
+                      Waiting 24h
+                    </span>
+                  )}
+                </div>
+              </button>
+            );
+          })}
         </div>
       )}
     </div>
