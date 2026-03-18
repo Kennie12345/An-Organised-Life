@@ -221,11 +221,11 @@ Long-term commitments. Must pass through scratch pad and interrogation.
 | why | text | Mandatory. Displayed daily. |
 | primary_stat_id | uuid FK stats | |
 | status | enum | scratch_pad / committed / active / paused / completed / archived |
-| stake_type | enum | in_game / personal_forfeit / accountability |
-| stake_description | text nullable | Written by user for personal_forfeit |
 | commitment_score | integer nullable | 1–10. Must be 7+ to commit |
 | committed_at | timestamp nullable | Null until interrogation complete |
 | target_date | date nullable | |
+| grace_period_value | integer | Duration before failure penalties apply. Default 3 |
+| grace_period_unit | enum | hours / days / weeks. Default days |
 | scratch_pad_expires_at | timestamp | created_at + 48h — auto-archives if unanswered |
 | created_at | timestamp | |
 
@@ -237,6 +237,24 @@ active      ->                                                -> completed / pau
 ```
 
 Max 3 goals in `active` status at any time. Enforced in application logic.
+
+---
+
+## goal_stake_effects
+
+Stat consequences chosen by the user at goal creation. Applied on
+goal completion (success effects) or after grace period expires on
+stall/failure (failure effects).
+
+| Column | Type | Notes |
+|---|---|---|
+| id | uuid PK | |
+| goal_id | uuid FK goals | |
+| stat_id | uuid FK stats | |
+| effect_value | integer | Any int. MVP UI offers +2, +4, -2, -4 |
+| trigger | enum | success / failure |
+
+**Constraints:** Max 2 success effects and 2 failure effects per goal.
 
 ---
 
@@ -568,6 +586,7 @@ users
   |     |-- habit_maturity (1:1 per user)
   |     |-- habit_logs (1:many)
   |-- goals (1:many)
+  |     |-- goal_stake_effects -> stats
   |     |-- goal_metric_targets -> logbook_metrics
   |     |-- goal_milestones
   |     |     |-- goal_steps

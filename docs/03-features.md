@@ -157,13 +157,31 @@ Surfaces the "why" prominently. Maximum 3 active goals enforced.
 
 **Interaction:**
 - Each goal card shows: name, why, primary stat, progress (metric or milestone),
-  stake, linked habits, and linked tasks
+  stake effects (stat gains/losses), linked habits, and linked tasks
 - Milestone progress shown as a step-by-step visual
 - Tapping a goal opens full detail with task management
 - "Add Goal" button goes to Scratch Pad first, not goal creation directly
 
-**Behavioural science:** Commitment devices. Seeing the stake alongside the
-goal daily is a persistent reminder of the cost of failure.
+**Goal creation flow** (after promotion from Scratch Pad with commitment >= 7):
+1. **Name & Why** — title + mandatory why (displayed daily on goal card)
+2. **Primary Stat** — which stat this goal feeds
+3. **Metric Target** — optional logbook metric link (start_value + target_value)
+4. **Milestones** — 2–5 waypoints with optional dates and steps
+5. **Linked Habits** — select existing habits or create new micro-habits inline
+   (each with its own completion_type: boolean, numeric, text, etc.)
+6. **Stakes (Stat Effects)** — user picks stat consequences:
+   - On success: 1–2 stats to boost (+2 or +4 in MVP UI; schema stores any int)
+   - On failure: 1–2 stats penalised (-2 or -4 in MVP UI; schema stores any int)
+   - Grace period: user sets duration before failure penalties apply (e.g. 3 days, 1 week)
+7. **Confirmation** — summary card, commitment score shown, "Commit" button
+
+Each step is a single full-screen card with progress dots (one thing at a time).
+Only Name, Why, and Stakes are required — Metric, Milestones, and Habits can
+be added later from goal detail.
+
+**Behavioural science:** Commitment devices. Seeing the stat effects alongside
+the goal daily is a persistent reminder of the tangible cost of failure —
+visible on the pet's condition.
 
 ---
 
