@@ -348,55 +348,12 @@ export default function InterrogationPage() {
           </div>
         )}
 
-        {/* Commitment score result */}
+        {/* Commitment score — shown as info, never blocks goal creation */}
         {commitmentScore !== null && (
-          <div className="py-4 space-y-3">
-            <div
-              className="text-center py-4 rounded-xl"
-              style={{ backgroundColor: "hsl(var(--muted))" }}
-            >
-              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
-                Commitment Score
-              </p>
-              <p
-                className="text-[32px] font-medium tabular-nums"
-                style={{
-                  color:
-                    commitmentScore >= 7
-                      ? "hsl(152 60% 48%)"
-                      : "hsl(var(--foreground))",
-                }}
-              >
-                {commitmentScore}
-              </p>
-              <p className="text-[11px] text-muted-foreground">/10</p>
-            </div>
-
-            {commitmentScore >= 7 ? (
-              <button
-                onClick={promoteToGoal}
-                className="w-full flex items-center justify-center gap-2 py-3 rounded-lg text-[14px]"
-                style={{
-                  backgroundColor: "hsl(var(--foreground))",
-                  color: "hsl(var(--background))",
-                }}
-              >
-                <Sparkles size={16} />
-                Promote to Goal
-              </button>
-            ) : (
-              <div className="text-center">
-                <p className="text-[12px] text-muted-foreground mb-3">
-                  Score below 7 — not ready to commit yet
-                </p>
-                <button
-                  onClick={archiveItem}
-                  className="text-[12px] text-muted-foreground active:text-foreground"
-                >
-                  Archive this idea
-                </button>
-              </div>
-            )}
+          <div className="py-2 px-2">
+            <p className="text-[11px] text-muted-foreground text-center">
+              Plan clarity: {commitmentScore}/10
+            </p>
           </div>
         )}
       </div>
@@ -404,7 +361,7 @@ export default function InterrogationPage() {
       {/* Input + Actions */}
       <div className="px-4 py-3 flex-shrink-0 space-y-2">
         {/* Create Goal / Archive buttons — always visible after a few messages */}
-        {messages.length >= 3 && commitmentScore === null && (
+        {messages.length >= 3 && (
           <div className="flex gap-2">
             <button
               onClick={promoteToGoal}
@@ -427,8 +384,7 @@ export default function InterrogationPage() {
         )}
 
         {/* Chat input */}
-        {commitmentScore === null && (
-          <div className="flex items-end gap-2">
+        <div className="flex items-end gap-2">
             <textarea
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -461,7 +417,6 @@ export default function InterrogationPage() {
               <Send size={16} />
             </button>
           </div>
-        )}
       </div>
     </div>
   );

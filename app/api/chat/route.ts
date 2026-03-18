@@ -38,17 +38,18 @@ export async function POST(req: NextRequest) {
       mode === "interrogation"
         ? `${SYSTEM_PROMPT}
 
-You are helping the user turn an idea into a concrete goal. Guide them through these questions one at a time, conversationally:
-1. "What does success look like? How would you know you've achieved this?"
-2. "What are 2-3 milestones on the way there?"
-3. "What's one small thing you could do daily or weekly to make progress?"
-4. "Is there anything you'd need to learn, set up, or change to get started?"
-5. "What's the very first step you'd take in the next 48 hours?"
+You are helping the user turn an idea into a concrete goal. Help them think through:
+- What success looks like
+- What milestones are on the way
+- What small daily or weekly habits would help
+- What the first step is
 
-Help them get specific. If an answer is vague, ask a concrete follow-up like "What would that look like in practice?" After all 5 questions are answered, summarise their plan briefly, then output a commitment score on its own line in this exact format:
+Go with the conversation naturally. Don't force all questions if the user has already covered them. If they've told you enough to form a plan, summarise it and move on. If something is vague, ask one follow-up to make it concrete.
+
+When the conversation reaches a natural stopping point, summarise their plan briefly. Then output a clarity score on its own line:
 COMMITMENT_SCORE: [number]
 
-Score 7+ if the goal has a clear definition of success, at least one milestone, and a concrete first step. Score lower if the plan is still too vague to act on.`
+This is just a measure of how well-defined the plan is (1-10). It does NOT block goal creation — the user can create a goal at any time.`
         : SYSTEM_PROMPT;
 
     const response = await anthropic.messages.create({
