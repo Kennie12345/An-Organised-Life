@@ -2,10 +2,11 @@
 
 import { useEffect, useState, useCallback } from "react";
 import { db } from "@/db";
-import type { DbHabit, DbHabitLog, DbHabitMaturity, DbHabitStreak, DbHabitStatWeight } from "@/db";
+import type { DbHabit, DbHabitLog, DbHabitMaturity, DbHabitStreak, DbHabitStatWeight, DbLootDropCatalog } from "@/db";
 import { calculateXp, type MaturityStage } from "@/utils/xp";
 import { applyXpGain } from "@/utils/leveling";
 import { HabitRow } from "./habit-row";
+import { LootDropReveal } from "./loot-drop-reveal";
 
 type TimeBlock = "morning" | "afternoon" | "evening";
 
@@ -54,6 +55,13 @@ function getEffortMultiplier(habit: DbHabit, completionValue: string): number {
   return 1.0;
 }
 
+const LOOT_DROP_RATES: Record<string, number> = {
+  fragile:     0.30,
+  building:    0.20,
+  established: 0.12,
+  mastered:    0.08,
+};
+
 function getMaturityStage(consistentDays: number): string {
   if (consistentDays >= 89) return "mastered";
   if (consistentDays >= 65) return "established";
@@ -68,6 +76,8 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
   const [loading, setLoading] = useState(true);
   // Map of habitId → XP earned (shown briefly after completion)
   const [xpFlashes, setXpFlashes] = useState<Record<string, number>>({});
+  // Loot drop waiting to be revealed (catalog entry + drop id to acknowledge)
+  const [pendingLoot, setPendingLoot] = useState<{ catalog: DbLootDropCatalog; dropId: string } | null>(null);
 
   const loadData = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -272,6 +282,40 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
       }),
     );
 
+    // Loot drop check
+    if (habit.loot_drop_eligible) {
+      const dropRate = LOOT_DROP_RATES[maturityStage] ?? 0.20;
+      if (Math.random() < dropRate) {
+        const userLevel = user?.level ?? 1;
+        const catalog = await db.loot_drop_catalog
+          .filter((c) => c.min_level <= userLevel)
+          .toArray();
+        if (catalog.length > 0) {
+          const picked = catalog[Math.floor(Math.random() * catalog.length)];
+          const dropId = crypto.randomUUID();
+          const lootDrop = {
+            id: dropId,
+            user_id: userId,
+            catalog_id: picked.id,
+            habit_log_id: logId,
+            awarded_at: now,
+            acknowledged: false,
+            updated_at: now,
+          };
+          await db.loot_drops.add(lootDrop);
+          await db.habit_logs.update(logId, { loot_drop_id: dropId });
+          await db.sync_queue.add({
+            table_name: "loot_drops",
+            record_id: dropId,
+            operation: "upsert",
+            payload: JSON.stringify(lootDrop),
+            queued_at: now,
+          });
+          setPendingLoot({ catalog: picked, dropId });
+        }
+      }
+    }
+
     // XP flash — show for 2s
     setXpFlashes((prev) => ({ ...prev, [habit.id]: xpFinal }));
     setTimeout(
@@ -324,7 +368,17 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
     );
   }
 
+  async function handleCollectLoot() {
+    if (!pendingLoot) return;
+    await db.loot_drops.update(pendingLoot.dropId, { acknowledged: true });
+    setPendingLoot(null);
+  }
+
   return (
+    <>
+    {pendingLoot && (
+      <LootDropReveal catalog={pendingLoot.catalog} onCollect={handleCollectLoot} />
+    )}
     <div className="flex flex-col">
       {/* Tab bar */}
       <div className="flex border-b border-border bg-background sticky top-0 z-10">
@@ -377,5 +431,6 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
         )}
       </div>
     </div>
+    </>
   );
 }
