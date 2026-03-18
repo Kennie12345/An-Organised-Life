@@ -153,11 +153,24 @@ create table if not exists goals (
 create trigger goals_updated_at before update on goals
   for each row execute procedure set_updated_at();
 
+-- logbook_metrics (must be defined before goal_metric_targets which references it)
+create table if not exists logbook_metrics (
+  id         uuid primary key default gen_random_uuid(),
+  user_id    uuid not null references users(id) on delete cascade,
+  name       text not null,
+  unit       text not null,
+  stat_id    uuid references stats(id),
+  created_at timestamptz not null default now(),
+  updated_at timestamptz not null default now()
+);
+create trigger logbook_metrics_updated_at before update on logbook_metrics
+  for each row execute procedure set_updated_at();
+
 -- goal_metric_targets
 create table if not exists goal_metric_targets (
   id                  uuid primary key default gen_random_uuid(),
   goal_id             uuid not null references goals(id) on delete cascade,
-  logbook_metric_id   uuid not null,
+  logbook_metric_id   uuid not null references logbook_metrics(id) on delete cascade,
   start_value         float not null,
   target_value        float not null,
   target_revised_at   timestamptz,
@@ -218,19 +231,6 @@ create table if not exists tasks (
   updated_at     timestamptz not null default now()
 );
 create trigger tasks_updated_at before update on tasks
-  for each row execute procedure set_updated_at();
-
--- logbook_metrics
-create table if not exists logbook_metrics (
-  id         uuid primary key default gen_random_uuid(),
-  user_id    uuid not null references users(id) on delete cascade,
-  name       text not null,
-  unit       text not null,
-  stat_id    uuid references stats(id),
-  created_at timestamptz not null default now(),
-  updated_at timestamptz not null default now()
-);
-create trigger logbook_metrics_updated_at before update on logbook_metrics
   for each row execute procedure set_updated_at();
 
 -- logbook_entries
