@@ -426,6 +426,134 @@ function TaskManager({
   );
 }
 
+/* ── Scratch Pad Capture (Bottom Sheet) ── */
+
+function ScratchPadCapture({
+  open,
+  userId,
+  activeGoalCount,
+  onClose,
+}: {
+  open: boolean;
+  userId: string;
+  activeGoalCount: number;
+  onClose: () => void;
+}) {
+  const router = useRouter();
+  const [idea, setIdea] = useState("");
+  const [saving, setSaving] = useState(false);
+
+  if (!open) return null;
+
+  const capture = async () => {
+    if (!idea.trim() || saving) return;
+    setSaving(true);
+
+    const now = new Date().toISOString();
+    const id = crypto.randomUUID();
+    const autoArchive = new Date(
+      Date.now() + 48 * 60 * 60 * 1000,
+    ).toISOString();
+
+    const item = {
+      id,
+      user_id: userId,
+      raw_idea: idea.trim(),
+      status: "pending",
+      created_at: now,
+      interrogation_started_at: null,
+      interrogation_completed_at: null,
+      commitment_score: null,
+      llm_conversation: null,
+      promoted_goal_id: null,
+      auto_archive_at: autoArchive,
+      updated_at: now,
+    };
+
+    await db.scratch_pad_items.add(item as never);
+    await queueWrite("scratch_pad_items", id, "upsert", item);
+
+    // Create notification schedule for 24h reminder
+    const schedId = crypto.randomUUID();
+    const notif = {
+      id: schedId,
+      user_id: userId,
+      type: "scratch_pad_ready",
+      entity_type: "scratch_pad_item",
+      entity_id: id,
+      schedule_type: "triggered",
+      recurrence_time: null,
+      recurrence_days: null,
+      advance_notice_min: 0,
+      google_event_id: null,
+      is_active: true,
+      last_triggered_at: null,
+      created_at: now,
+      updated_at: now,
+    };
+    await db.notification_schedules.add(notif as never);
+    await queueWrite("notification_schedules", schedId, "upsert", notif);
+
+    setIdea("");
+    setSaving(false);
+    onClose();
+
+    // First-time user: skip quarantine, go straight to interrogation
+    if (activeGoalCount === 0) {
+      router.push(`/scratch-pad/${id}`);
+    } else {
+      // Show scratch pad list so they can see the quarantine timer
+      router.push("/scratch-pad");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30">
+      <div
+        className="w-full max-w-md rounded-t-2xl px-6 pt-5 pb-8 space-y-4"
+        style={{ backgroundColor: "hsl(var(--background))" }}
+      >
+        <p className="text-[14px]">What's the idea?</p>
+        <textarea
+          value={idea}
+          onChange={(e) => setIdea(e.target.value)}
+          placeholder="Dump it here — no structure needed"
+          rows={3}
+          autoFocus
+          className="w-full bg-transparent border border-muted-foreground/20 rounded-lg p-3 text-[14px] outline-none focus:border-foreground/40 transition-colors placeholder:text-muted-foreground/30 resize-none"
+        />
+        <div className="flex gap-2">
+          <button
+            onClick={capture}
+            disabled={!idea.trim() || saving}
+            className="flex-1 py-3 rounded-lg text-[14px] transition-opacity"
+            style={{
+              backgroundColor: idea.trim()
+                ? "hsl(var(--foreground))"
+                : "hsl(var(--muted))",
+              color: idea.trim()
+                ? "hsl(var(--background))"
+                : "hsl(var(--muted-foreground))",
+              opacity: idea.trim() ? 1 : 0.5,
+            }}
+          >
+            {saving ? "Saving…" : "Capture"}
+          </button>
+          <button
+            onClick={() => {
+              setIdea("");
+              onClose();
+            }}
+            className="px-6 py-3 rounded-lg text-[14px] text-muted-foreground active:opacity-50"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 /* ── Page ── */
 
 export default function GoalsPage() {
@@ -434,6 +562,7 @@ export default function GoalsPage() {
   const [statMap, setStatMap] = useState<Map<string, DbStat>>(new Map());
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState<string | null>(null);
+  const [showScratchPad, setShowScratchPad] = useState(false);
   const router = useRouter();
 
   const loadData = useCallback(async () => {
@@ -589,10 +718,10 @@ export default function GoalsPage() {
       {cards.length < 3 && (
         <button
           className="mt-8 w-full flex items-center justify-center gap-2 py-3 text-[13px] text-muted-foreground active:opacity-50 transition-opacity border border-dashed border-muted-foreground/20 rounded-lg"
-          onClick={() => router.push("/scratch-pad")}
+          onClick={() => setShowScratchPad(true)}
         >
           <Plus size={16} strokeWidth={1.5} />
-          Add Goal via Scratch Pad
+          Add Goal
         </button>
       )}
 
@@ -603,6 +732,16 @@ export default function GoalsPage() {
           unlinkedTasks={unlinkedTasks}
           userId={userId}
           onRefresh={loadData}
+        />
+      )}
+
+      {/* Scratch Pad Capture Sheet */}
+      {userId && (
+        <ScratchPadCapture
+          open={showScratchPad}
+          userId={userId}
+          activeGoalCount={cards.length}
+          onClose={() => setShowScratchPad(false)}
         />
       )}
     </div>
