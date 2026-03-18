@@ -30,6 +30,30 @@ function getMondayOfCurrentWeek(): string {
   return monday.toISOString().split("T")[0];
 }
 
+// Extract effort multiplier from a composite completion value.
+// Looks for the scale step in the config and maps the chosen option to its xp_weight.
+function getEffortMultiplier(habit: DbHabit, completionValue: string): number {
+  if (habit.completion_type !== "composite" || !habit.completion_config) return 1.0;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const cfg = habit.completion_config as Record<string, any>;
+  const parts: Array<{ type: string; options: string[]; xp_weights?: number[] }> =
+    Array.isArray(cfg.parts)
+      ? cfg.parts
+      : Object.keys(cfg)
+          .filter((k) => /^step\d+$/.test(k))
+          .sort()
+          .map((k) => cfg[k]);
+  const values = completionValue.split("|");
+  for (let i = 0; i < parts.length; i++) {
+    const part = parts[i];
+    if (part.type === "scale" && part.xp_weights) {
+      const idx = part.options.indexOf(values[i]);
+      if (idx >= 0) return part.xp_weights[idx];
+    }
+  }
+  return 1.0;
+}
+
 function getMaturityStage(consistentDays: number): string {
   if (consistentDays >= 89) return "mastered";
   if (consistentDays >= 65) return "established";
@@ -129,12 +153,14 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
           habitWeights.length
         : 1.0;
 
+    const effortMultiplier = getEffortMultiplier(habit, value);
     const { xpBase, xpFinal } = calculateXp({
       xpMin: habit.xp_min,
       xpMax: habit.xp_max,
       currentWeight,
       sequenceMultiplier,
       maturityStage,
+      effortMultiplier,
     });
 
     const logId = crypto.randomUUID();

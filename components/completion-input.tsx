@@ -2,6 +2,13 @@
 
 import { useState } from "react";
 
+type CompositePart = {
+  type: "categorical" | "scale";
+  label: string;
+  options: string[];
+  xp_weights?: number[];
+};
+
 type CompletionConfig = {
   unit?: string;
   min?: number;
@@ -9,12 +16,20 @@ type CompletionConfig = {
   step?: number;
   options?: string[];
   placeholder?: string;
-  parts?: Array<{
-    type: "categorical" | "scale";
-    label: string;
-    options: string[];
-  }>;
+  parts?: CompositePart[];
+  // step1/step2/... keyed format (Exercise config)
+  [key: `step${number}`]: CompositePart;
 } | null;
+
+// Normalise both { parts: [...] } and { step1: {}, step2: {} } formats
+function getCompositeParts(config: CompletionConfig): CompositePart[] {
+  if (!config) return [];
+  if (Array.isArray(config.parts)) return config.parts;
+  return Object.keys(config)
+    .filter((k) => /^step\d+$/.test(k))
+    .sort()
+    .map((k) => (config as Record<string, CompositePart>)[k]);
+}
 
 interface CompletionInputProps {
   type: string;
@@ -129,7 +144,7 @@ export function CompletionInput({ type, config, onComplete }: CompletionInputPro
   }
 
   if (type === "composite") {
-    const defs = config?.parts ?? [];
+    const defs = getCompositeParts(config);
     const allSelected = defs.length > 0 && parts.length === defs.length && parts.every(Boolean);
     return (
       <div className="mt-3 flex flex-col gap-3">

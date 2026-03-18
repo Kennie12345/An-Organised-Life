@@ -17,13 +17,14 @@ export function calculateXp(params: {
   currentWeight: number
   sequenceMultiplier: 1.0 | 0.5
   maturityStage: MaturityStage
+  effortMultiplier?: number // composite habits: xp_weights from scale step (default 1.0)
 }): { xpBase: number; xpFinal: number } {
-  const { xpMin, xpMax, currentWeight, sequenceMultiplier, maturityStage } = params
+  const { xpMin, xpMax, currentWeight, sequenceMultiplier, maturityStage, effortMultiplier = 1.0 } = params
 
   const xpBase = Math.floor(Math.random() * (xpMax - xpMin + 1)) + xpMin
   const maturityMultiplier = MATURITY_XP_MULTIPLIER[maturityStage]
 
-  const xpFinal = Math.round(xpBase * currentWeight * sequenceMultiplier * maturityMultiplier)
+  const xpFinal = Math.round(xpBase * currentWeight * sequenceMultiplier * maturityMultiplier * effortMultiplier)
 
   return { xpBase, xpFinal }
 }
