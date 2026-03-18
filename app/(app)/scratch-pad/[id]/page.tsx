@@ -300,14 +300,13 @@ export default function InterrogationPage() {
       {/* Messages */}
       <div
         ref={scrollRef}
-        className="flex-1 overflow-y-auto px-6 space-y-4 min-h-0"
+        className="flex-1 overflow-y-auto px-4 pb-4 space-y-3 min-h-0"
       >
         {/* Idea card */}
-        <div
-          className="rounded-xl px-4 py-3 text-[13px] leading-relaxed"
-          style={{ backgroundColor: "hsl(var(--muted))" }}
+        <div className="mx-2 mt-2 rounded-2xl px-4 py-3 text-[13px] leading-[1.6]"
+          style={{ backgroundColor: "hsl(var(--muted) / 0.6)" }}
         >
-          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground/60 mb-1.5">
             Your idea
           </p>
           <p>{item.raw_idea}</p>
@@ -318,15 +317,15 @@ export default function InterrogationPage() {
           .map((msg, i) => (
             <div
               key={i}
-              className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
+              className={`flex ${msg.role === "user" ? "justify-end pl-12" : "justify-start pr-12"}`}
             >
               <div
-                className="max-w-[85%] rounded-2xl px-4 py-2.5 text-[13px] leading-relaxed"
+                className="rounded-2xl px-4 py-2.5 text-[13px] leading-[1.6]"
                 style={{
                   backgroundColor:
                     msg.role === "user"
                       ? "hsl(var(--foreground))"
-                      : "hsl(var(--muted))",
+                      : "hsl(var(--muted) / 0.5)",
                   color:
                     msg.role === "user"
                       ? "hsl(var(--background))"
@@ -339,10 +338,10 @@ export default function InterrogationPage() {
           ))}
 
         {sending && (
-          <div className="flex justify-start">
+          <div className="flex justify-start pr-12">
             <div
               className="rounded-2xl px-4 py-2.5 text-[13px]"
-              style={{ backgroundColor: "hsl(var(--muted))" }}
+              style={{ backgroundColor: "hsl(var(--muted) / 0.5)" }}
             >
               <span className="animate-pulse">Thinking…</span>
             </div>
