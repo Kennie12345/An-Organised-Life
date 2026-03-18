@@ -7,6 +7,7 @@ import { calculateXp, type MaturityStage } from "@/utils/xp";
 import { applyXpGain } from "@/utils/leveling";
 import { HabitRow } from "./habit-row";
 import { LootDropReveal } from "./loot-drop-reveal";
+import { LevelUpCelebration } from "./level-up-celebration";
 
 type TimeBlock = "morning" | "afternoon" | "evening";
 
@@ -79,6 +80,8 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
   const [xpFlashes, setXpFlashes] = useState<Record<string, number>>({});
   // Loot drop waiting to be revealed (catalog entry + drop id to acknowledge)
   const [pendingLoot, setPendingLoot] = useState<{ catalog: DbLootDropCatalog; dropId: string } | null>(null);
+  // Level-up celebration
+  const [levelUpTo, setLevelUpTo] = useState<number | null>(null);
 
   const loadData = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -197,7 +200,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
     // XP event + user XP update
     const user = await db.users.get(userId);
     const levelBefore = user?.level ?? 1;
-    const { level: levelAfter, currentXp: newCurrentXp } = applyXpGain(
+    const { level: levelAfter, currentXp: newCurrentXp, leveledUp } = applyXpGain(
       levelBefore,
       user?.current_xp ?? 0,
       xpFinal,
@@ -215,12 +218,18 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
     });
 
     if (user) {
+      const peakLevel = Math.max(user.peak_level ?? 1, levelAfter);
       await db.users.update(userId, {
         current_xp: newCurrentXp,
         level: levelAfter,
         lifetime_xp: (user.lifetime_xp ?? 0) + xpFinal,
+        peak_level: peakLevel,
         updated_at: now,
       });
+
+      if (leveledUp) {
+        setLevelUpTo(levelAfter);
+      }
     }
 
     // Habit streak update
@@ -371,12 +380,77 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
 
   async function handleCollectLoot() {
     if (!pendingLoot) return;
-    await db.loot_drops.update(pendingLoot.dropId, { acknowledged: true });
+    const now = new Date().toISOString();
+    const catalog = pendingLoot.catalog;
+    const payload = catalog.payload as Record<string, unknown>;
+
+    // Apply loot effect based on type
+    if (catalog.type === "xp_surge" && typeof payload.xp_bonus === "number") {
+      const user = await db.users.get(userId);
+      if (user) {
+        const { level, currentXp, leveledUp } = applyXpGain(
+          user.level,
+          user.current_xp,
+          payload.xp_bonus,
+        );
+        await db.users.update(userId, {
+          level,
+          current_xp: currentXp,
+          lifetime_xp: user.lifetime_xp + payload.xp_bonus,
+          peak_level: Math.max(user.peak_level, level),
+          updated_at: now,
+        });
+        await db.xp_events.add({
+          id: crypto.randomUUID(),
+          user_id: userId,
+          amount: payload.xp_bonus,
+          source_type: "loot_drop",
+          source_id: pendingLoot.dropId,
+          level_before: user.level,
+          level_after: level,
+          created_at: now,
+        });
+        if (leveledUp) setLevelUpTo(level);
+      }
+    } else if (catalog.type === "stat_boost" && typeof payload.boost === "number") {
+      // Boost a random active stat
+      const stats = await db.stats
+        .where("user_id")
+        .equals(userId)
+        .filter((s) => s.is_active)
+        .toArray();
+      if (stats.length > 0) {
+        const stat = stats[Math.floor(Math.random() * stats.length)];
+        const newValue = Math.min(100, stat.current_value + payload.boost);
+        await db.stats.update(stat.id, { current_value: newValue, updated_at: now });
+        await db.sync_queue.add({
+          table_name: "stats",
+          record_id: stat.id,
+          operation: "upsert",
+          payload: JSON.stringify({ ...stat, current_value: newValue, updated_at: now }),
+          queued_at: now,
+        });
+      }
+    }
+    // rested_bonus and fortune are passive — stored on the loot_drops row
+    // and checked during habit completion / daily upkeep respectively
+
+    await db.loot_drops.update(pendingLoot.dropId, { acknowledged: true, updated_at: now });
+    await db.sync_queue.add({
+      table_name: "loot_drops",
+      record_id: pendingLoot.dropId,
+      operation: "upsert",
+      payload: JSON.stringify({ acknowledged: true, updated_at: now }),
+      queued_at: now,
+    });
     setPendingLoot(null);
   }
 
   return (
     <>
+    {levelUpTo !== null && (
+      <LevelUpCelebration level={levelUpTo} show onDismiss={() => setLevelUpTo(null)} />
+    )}
     {pendingLoot && (
       <LootDropReveal catalog={pendingLoot.catalog} onCollect={handleCollectLoot} />
     )}
