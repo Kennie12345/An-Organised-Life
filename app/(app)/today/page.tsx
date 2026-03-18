@@ -5,8 +5,9 @@ import { createClient } from "@/lib/supabase/client";
 import { db } from "@/db";
 import { MorningPlanning } from "@/components/morning-planning";
 import { HabitChecklist } from "@/components/habit-checklist";
+import { EveningCheckIn } from "@/components/evening-checkin";
 
-type PageState = "loading" | "plan" | "checklist";
+type PageState = "loading" | "plan" | "checklist" | "evening" | "done";
 
 export default function TodayPage() {
   const [pageState, setPageState] = useState<PageState>("loading");
@@ -28,7 +29,13 @@ export default function TodayPage() {
         .filter((p) => p.plan_date === today)
         .first();
 
-      setPageState(existing ? "checklist" : "plan");
+      if (!existing) {
+        setPageState("plan");
+      } else if (existing.completed_at) {
+        setPageState("done");
+      } else {
+        setPageState("checklist");
+      }
     }
     init();
   }, []);
@@ -51,7 +58,33 @@ export default function TodayPage() {
   }
 
   if (pageState === "checklist" && userId) {
-    return <HabitChecklist userId={userId} />;
+    return (
+      <HabitChecklist
+        userId={userId}
+        onEndDay={() => setPageState("evening")}
+      />
+    );
+  }
+
+  if (pageState === "evening" && userId) {
+    return (
+      <EveningCheckIn
+        userId={userId}
+        onComplete={() => setPageState("done")}
+      />
+    );
+  }
+
+  if (pageState === "done") {
+    return (
+      <div className="flex flex-col items-center justify-center py-20 gap-3 px-6 text-center">
+        <p className="text-3xl">🌙</p>
+        <p className="text-sm font-medium">Day complete. Rest well.</p>
+        <p className="text-xs text-muted-foreground">
+          Your progress has been saved. See you tomorrow.
+        </p>
+      </div>
+    );
   }
 
   return null;

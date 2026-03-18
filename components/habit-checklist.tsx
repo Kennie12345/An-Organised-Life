@@ -20,6 +20,7 @@ interface HabitState {
 
 interface HabitChecklistProps {
   userId: string;
+  onEndDay?: () => void;
 }
 
 function getMondayOfCurrentWeek(): string {
@@ -69,7 +70,7 @@ function getMaturityStage(consistentDays: number): string {
   return "fragile";
 }
 
-export function HabitChecklist({ userId }: HabitChecklistProps) {
+export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
   const [states, setStates] = useState<HabitState[]>([]);
   const [weights, setWeights] = useState<DbHabitStatWeight[]>([]);
   const [activeTab, setActiveTab] = useState<TimeBlock>("morning");
@@ -430,6 +431,18 @@ export function HabitChecklist({ userId }: HabitChecklistProps) {
           ))
         )}
       </div>
+
+      {/* End Day button — visible on the evening tab */}
+      {onEndDay && activeTab === "evening" && (
+        <div className="px-4 py-6">
+          <button
+            onClick={onEndDay}
+            className="w-full rounded-xl border border-border py-3.5 text-sm font-medium text-foreground active:opacity-70"
+          >
+            End Day
+          </button>
+        </div>
+      )}
     </div>
     </>
   );
