@@ -435,7 +435,7 @@ The morning planning ritual. One row per user per day.
 | id | uuid PK | |
 | user_id | uuid FK users | |
 | plan_date | date | |
-| intentions | JSON | Array of 3 intention strings |
+| intentions | JSONB | `{ focus_goal_id: uuid\|null, ad_hoc: [{ text, linked_goal_id: uuid\|null }] }`. Default: `{"focus_goal_id": null, "ad_hoc": []}` |
 | mood_start | integer nullable | 1–5 (morning emoji check-in) |
 | mood_end | integer nullable | 1–5 (evening emoji check-in) |
 | journal_entry | text nullable | Evening — 3 sentences max |
