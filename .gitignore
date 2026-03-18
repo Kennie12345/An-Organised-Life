@@ -47,3 +47,10 @@ next-env.d.ts
 .mcp.json
 CLAUDE.md
 20220114 Daily Planner.pdf
+/docs/PROMPT.md
+
+# Supabase CLI runtime temp files
+/supabase/.temp/
+
+# Nested repo (separate project, not a submodule)
+/An-Organised-Life/

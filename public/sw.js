@@ -18,7 +18,18 @@ const APP_SHELL = [
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL))
+    caches.open(CACHE_NAME).then((cache) =>
+      // Use individual puts instead of addAll so a single redirect/failure
+      // (e.g. auth redirect) doesn't block the entire install
+      Promise.all(
+        APP_SHELL.map((url) =>
+          fetch(url, { redirect: 'manual' }).then((res) => {
+            if (res.ok) return cache.put(url, res)
+            // Skip redirect or error responses — they'll be cached on first successful visit
+          }).catch(() => { /* offline or error — skip */ })
+        )
+      )
+    )
   )
   self.skipWaiting()
 })
@@ -55,6 +66,10 @@ self.addEventListener('fetch', (event) => {
     caches.match(request).then((cached) => {
       if (cached) return cached
       return fetch(request).then((response) => {
+        // Don't cache or return redirect responses — let the browser handle them natively
+        if (response.redirected) {
+          return response
+        }
         // Cache successful navigation responses
         if (response.ok && (request.mode === 'navigate' || request.destination === 'document')) {
           const clone = response.clone()
