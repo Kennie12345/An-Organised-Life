@@ -5,6 +5,7 @@ import { Pill } from "lucide-react";
 import { db, type DbHabit, type DbHabitLog } from "@/db";
 import { calculateXp, type MaturityStage } from "@/utils/xp";
 import { applyXpGain } from "@/utils/leveling";
+import { uuid } from "@/utils/uuid";
 
 interface MedState {
   habit: DbHabit;
@@ -80,7 +81,7 @@ export function MedicationTracker({ userId }: MedicationTrackerProps) {
       maturityStage,
     });
 
-    const logId = crypto.randomUUID();
+    const logId = uuid();
     const log: DbHabitLog = {
       id: logId,
       habit_id: habitId,
@@ -109,7 +110,7 @@ export function MedicationTracker({ userId }: MedicationTrackerProps) {
     );
 
     await db.xp_events.add({
-      id: crypto.randomUUID(),
+      id: uuid(),
       user_id: userId,
       amount: xpFinal,
       source_type: "habit_completion",

@@ -8,6 +8,7 @@ import { applyXpGain } from "@/utils/leveling";
 import { HabitRow } from "./habit-row";
 import { LootDropReveal } from "./loot-drop-reveal";
 import { LevelUpCelebration } from "./level-up-celebration";
+import { uuid } from "@/utils/uuid";
 
 type TimeBlock = "morning" | "afternoon" | "evening";
 
@@ -177,7 +178,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
       effortMultiplier,
     });
 
-    const logId = crypto.randomUUID();
+    const logId = uuid();
     const log: DbHabitLog = {
       id: logId,
       habit_id: habit.id,
@@ -207,7 +208,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
     );
 
     await db.xp_events.add({
-      id: crypto.randomUUID(),
+      id: uuid(),
       user_id: userId,
       amount: xpFinal,
       source_type: "habit_completion",
@@ -302,7 +303,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
           .toArray();
         if (catalog.length > 0) {
           const picked = catalog[Math.floor(Math.random() * catalog.length)];
-          const dropId = crypto.randomUUID();
+          const dropId = uuid();
           const lootDrop = {
             id: dropId,
             user_id: userId,
@@ -401,7 +402,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
           updated_at: now,
         });
         await db.xp_events.add({
-          id: crypto.randomUUID(),
+          id: uuid(),
           user_id: userId,
           amount: payload.xp_bonus,
           source_type: "loot_drop",

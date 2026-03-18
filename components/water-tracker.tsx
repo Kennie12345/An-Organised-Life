@@ -5,6 +5,7 @@ import { GlassWater } from "lucide-react";
 import { db, type DbHabitLog } from "@/db";
 import { calculateXp, type MaturityStage } from "@/utils/xp";
 import { applyXpGain } from "@/utils/leveling";
+import { uuid } from "@/utils/uuid";
 
 const WATER_TARGET = 8;
 
@@ -73,7 +74,7 @@ export function WaterTracker({ userId }: WaterTrackerProps) {
         queued_at: now,
       });
     } else {
-      const newLogId = crypto.randomUUID();
+      const newLogId = uuid();
       const log: DbHabitLog = {
         id: newLogId,
         habit_id: habitId,
@@ -144,7 +145,7 @@ export function WaterTracker({ userId }: WaterTrackerProps) {
       );
 
       await db.xp_events.add({
-        id: crypto.randomUUID(),
+        id: uuid(),
         user_id: userId,
         amount: xpFinal,
         source_type: "habit_completion",

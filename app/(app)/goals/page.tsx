@@ -18,6 +18,7 @@ import {
 } from "@/db";
 import { queueWrite } from "@/lib/sync";
 import { awardTaskXp } from "@/utils/task-xp";
+import { uuid } from "@/utils/uuid";
 import { Check, Plus } from "lucide-react";
 
 /* ── Types ── */
@@ -248,7 +249,7 @@ function TaskManager({
   const addTask = async () => {
     if (!newTaskName.trim()) return;
     const now = new Date().toISOString();
-    const taskId = crypto.randomUUID();
+    const taskId = uuid();
     const task = {
       id: taskId,
       user_id: userId,
@@ -450,7 +451,7 @@ function ScratchPadCapture({
     setSaving(true);
 
     const now = new Date().toISOString();
-    const id = crypto.randomUUID();
+    const id = uuid();
     const autoArchive = new Date(
       Date.now() + 48 * 60 * 60 * 1000,
     ).toISOString();
@@ -474,7 +475,7 @@ function ScratchPadCapture({
     await queueWrite("scratch_pad_items", id, "upsert", item);
 
     // Create notification schedule for 24h reminder
-    const schedId = crypto.randomUUID();
+    const schedId = uuid();
     const notif = {
       id: schedId,
       user_id: userId,

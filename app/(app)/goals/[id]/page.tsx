@@ -19,6 +19,7 @@ import {
 } from "@/db";
 import { queueWrite } from "@/lib/sync";
 import { awardTaskXp } from "@/utils/task-xp";
+import { uuid } from "@/utils/uuid";
 
 /* ── Types ── */
 
@@ -353,7 +354,7 @@ export default function GoalDetailPage() {
   const addTask = async () => {
     if (!data || !userId || !newTaskName.trim()) return;
     const now = new Date().toISOString();
-    const taskId = crypto.randomUUID();
+    const taskId = uuid();
 
     const task = {
       id: taskId,

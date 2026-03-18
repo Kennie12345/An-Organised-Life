@@ -10,6 +10,7 @@ import type { DbHabitStatWeight, DbHabitStreak, DbHabitMaturity, DbStat } from "
 import { applyUpkeepDrain } from "@/utils/leveling";
 import { applyStatDecay } from "@/utils/decay";
 import { updateWeightOnMiss } from "@/utils/weight";
+import { uuid } from "@/utils/uuid";
 
 const STORAGE_KEY = "daily_jobs_last_run";
 
@@ -74,7 +75,7 @@ export function useDailyJobs(userId: string | null): { levelDropTo: number | nul
         if (user.current_xp !== currentXp || level !== levelBefore) {
           const drainAmount = user.current_xp - currentXp;
           await db.xp_events.add({
-            id: crypto.randomUUID(),
+            id: uuid(),
             user_id: userId,
             amount: -drainAmount,
             source_type: "upkeep_drain",

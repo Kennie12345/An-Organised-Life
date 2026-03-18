@@ -13,6 +13,7 @@ import {
   type DbLogbookMetric,
 } from "@/db";
 import { queueWrite } from "@/lib/sync";
+import { uuid } from "@/utils/uuid";
 
 /* ── Form State ── */
 
@@ -931,7 +932,7 @@ export default function GoalCreatePage() {
 
     setSaving(true);
     const now = new Date().toISOString();
-    const goalId = crypto.randomUUID();
+    const goalId = uuid();
 
     // Create goal
     const goal = {
@@ -956,7 +957,7 @@ export default function GoalCreatePage() {
 
     // Create stake effects
     for (const effect of form.stakeEffects) {
-      const id = crypto.randomUUID();
+      const id = uuid();
       const row = {
         id,
         goal_id: goalId,
@@ -972,7 +973,7 @@ export default function GoalCreatePage() {
 
     // Create metric target if selected
     if (form.metricId) {
-      const id = crypto.randomUUID();
+      const id = uuid();
       const row = {
         id,
         goal_id: goalId,
@@ -991,7 +992,7 @@ export default function GoalCreatePage() {
     const validMilestones = form.milestones.filter((m) => m.name.trim());
     for (let i = 0; i < validMilestones.length; i++) {
       const m = validMilestones[i];
-      const id = crypto.randomUUID();
+      const id = uuid();
       const row = {
         id,
         goal_id: goalId,
@@ -1008,7 +1009,7 @@ export default function GoalCreatePage() {
 
     // Link existing habits
     for (const habitId of form.linkedHabitIds) {
-      const id = crypto.randomUUID();
+      const id = uuid();
       const row = {
         id,
         goal_id: goalId,
@@ -1021,7 +1022,7 @@ export default function GoalCreatePage() {
 
     // Create new micro-habits and link them
     for (const nh of form.newHabits.filter((h) => h.name.trim())) {
-      const habitId = crypto.randomUUID();
+      const habitId = uuid();
       // Find max sequence_order in this time_block
       const existingInBlock = habits.filter(
         (h) => h.time_block === nh.timeBlock,
@@ -1052,7 +1053,7 @@ export default function GoalCreatePage() {
       await queueWrite("habits", habitId, "upsert", habit);
 
       // Create streak + maturity for new habit
-      const streakId = crypto.randomUUID();
+      const streakId = uuid();
       const streakRow = {
         id: streakId,
         habit_id: habitId,
@@ -1065,7 +1066,7 @@ export default function GoalCreatePage() {
       await db.habit_streaks.add(streakRow as never);
       await queueWrite("habit_streaks", streakId, "upsert", streakRow);
 
-      const maturityId = crypto.randomUUID();
+      const maturityId = uuid();
       const maturityRow = {
         id: maturityId,
         habit_id: habitId,
@@ -1079,7 +1080,7 @@ export default function GoalCreatePage() {
       await queueWrite("habit_maturity", maturityId, "upsert", maturityRow);
 
       // Link to goal
-      const linkId = crypto.randomUUID();
+      const linkId = uuid();
       const linkRow = {
         id: linkId,
         goal_id: goalId,
@@ -1091,7 +1092,7 @@ export default function GoalCreatePage() {
 
       // Create stat weight for primary stat if set
       if (form.primaryStatId) {
-        const weightId = crypto.randomUUID();
+        const weightId = uuid();
         const weightRow = {
           id: weightId,
           habit_id: habitId,

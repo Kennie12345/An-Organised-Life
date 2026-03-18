@@ -4,6 +4,7 @@
 import { db } from "@/db";
 import { applyXpGain } from "./leveling";
 import { queueWrite } from "@/lib/sync";
+import { uuid } from "@/utils/uuid";
 
 const TASK_XP_MIN = 15;
 const TASK_XP_MAX = 25;
@@ -49,7 +50,7 @@ export async function awardTaskXp(
   });
 
   // Log XP event
-  const eventId = crypto.randomUUID();
+  const eventId = uuid();
   const xpEvent = {
     id: eventId,
     user_id: userId,

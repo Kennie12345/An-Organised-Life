@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { db } from "@/db";
+import { uuid } from "@/utils/uuid";
 import type { DbXpEvent, DbHabitLog, DbDailyPlan, DbGoal } from "@/db";
 
 const MOODS = [
@@ -112,7 +113,7 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
     setSaving(true);
 
     const today = new Date().toISOString().split("T")[0];
-    const id = crypto.randomUUID();
+    const id = uuid();
     const now = new Date().toISOString();
 
     const plan = {

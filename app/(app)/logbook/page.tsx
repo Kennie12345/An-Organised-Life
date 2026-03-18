@@ -9,6 +9,7 @@ import {
   type DbLootDropCatalog,
 } from "@/db";
 import { queueWrite } from "@/lib/sync";
+import { uuid } from "@/utils/uuid";
 import { ChevronLeft, Plus, TrendingUp, TrendingDown, Minus, Trophy } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -81,7 +82,7 @@ function MetricDetail({
     if (isNaN(val)) return;
 
     const now = new Date().toISOString();
-    const entryId = crypto.randomUUID();
+    const entryId = uuid();
 
     const entry = {
       id: entryId,
@@ -128,7 +129,7 @@ function MetricDetail({
 
       if (catalog.length > 0) {
         const picked = catalog[Math.floor(Math.random() * catalog.length)];
-        const dropId = crypto.randomUUID();
+        const dropId = uuid();
         const lootDrop = {
           id: dropId,
           user_id: userId,

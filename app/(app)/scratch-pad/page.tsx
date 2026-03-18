@@ -10,6 +10,7 @@ import {
 } from "@/db";
 
 import { queueWrite } from "@/lib/sync";
+import { uuid } from "@/utils/uuid";
 import { Plus, ChevronRight, Clock, MessageCircle, Archive, Sparkles } from "lucide-react";
 
 /* ── Status Badge ── */
@@ -141,7 +142,7 @@ export default function ScratchPadPage() {
   const captureIdea = async () => {
     if (!userId || !newIdea.trim()) return;
     const now = new Date().toISOString();
-    const id = crypto.randomUUID();
+    const id = uuid();
 
     const quarantineEnd = new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
     const autoArchive = new Date(Date.now() + 48 * 60 * 60 * 1000).toISOString();
@@ -165,7 +166,7 @@ export default function ScratchPadPage() {
     await queueWrite("scratch_pad_items", id, "upsert", item);
 
     // Create 24h notification schedule
-    const schedId = crypto.randomUUID();
+    const schedId = uuid();
     const notif = {
       id: schedId,
       user_id: userId,

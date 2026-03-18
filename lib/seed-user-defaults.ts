@@ -5,6 +5,7 @@
 import { db } from "@/db";
 import { DEFAULT_STATS, DEFAULT_HABITS } from "@/config/defaults";
 import type { Json } from "@/lib/supabase/database.types";
+import { uuid } from "@/utils/uuid";
 
 export async function seedUserDefaults(userId: string) {
   // Check if already seeded
@@ -16,7 +17,7 @@ export async function seedUserDefaults(userId: string) {
   // ── Stats ──
   const statIdMap = new Map<string, string>();
   for (const s of DEFAULT_STATS) {
-    const id = crypto.randomUUID();
+    const id = uuid();
     statIdMap.set(s.name, id);
     await db.stats.put({
       id,
@@ -44,7 +45,7 @@ export async function seedUserDefaults(userId: string) {
 
   // ── Habits + weights + streaks + maturity ──
   for (const h of DEFAULT_HABITS) {
-    const habitId = crypto.randomUUID();
+    const habitId = uuid();
     await db.habits.put({
       id: habitId,
       user_id: userId,
@@ -74,7 +75,7 @@ export async function seedUserDefaults(userId: string) {
     for (const sw of h.stat_weights) {
       const statId = statIdMap.get(sw.stat);
       if (!statId) continue;
-      const weightId = crypto.randomUUID();
+      const weightId = uuid();
       await db.habit_stat_weights.put({
         id: weightId,
         habit_id: habitId,
@@ -97,7 +98,7 @@ export async function seedUserDefaults(userId: string) {
     }
 
     // Habit streak
-    const streakId = crypto.randomUUID();
+    const streakId = uuid();
     await db.habit_streaks.put({
       id: streakId,
       habit_id: habitId,
@@ -116,7 +117,7 @@ export async function seedUserDefaults(userId: string) {
     });
 
     // Habit maturity
-    const maturityId = crypto.randomUUID();
+    const maturityId = uuid();
     await db.habit_maturity.put({
       id: maturityId,
       habit_id: habitId,
