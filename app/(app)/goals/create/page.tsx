@@ -34,13 +34,19 @@ interface NewHabitInput {
   timeBlock: string;
 }
 
+interface NewMetricInput {
+  name: string;
+  unit: string;
+}
+
 interface FormState {
   name: string;
   why: string;
   primaryStatId: string;
-  metricId: string;
+  metricId: string; // existing metric id, "new" for new metric, "" for none
   metricStartValue: string;
   metricTargetValue: string;
+  newMetric: NewMetricInput;
   milestones: MilestoneInput[];
   linkedHabitIds: string[];
   newHabits: NewHabitInput[];
@@ -56,6 +62,7 @@ const INITIAL_FORM: FormState = {
   metricId: "",
   metricStartValue: "",
   metricTargetValue: "",
+  newMetric: { name: "", unit: "" },
   milestones: [],
   linkedHabitIds: [],
   newHabits: [],
@@ -193,27 +200,25 @@ function StepMetric({
   onChange: (f: Partial<FormState>) => void;
   metrics: DbLogbookMetric[];
 }) {
+  const hasMetric = form.metricId !== "";
+
   return (
     <div className="space-y-4">
       <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-        Link a logbook metric (optional)
-      </p>
-      <p className="text-[12px] text-muted-foreground/60">
-        Skip this if your goal is milestone-based rather than metric-based
+        Track a metric (optional)
       </p>
 
+      {/* No metric option */}
       <button
         onClick={() =>
-          onChange({ metricId: "", metricStartValue: "", metricTargetValue: "" })
+          onChange({ metricId: "", metricStartValue: "", metricTargetValue: "", newMetric: { name: "", unit: "" } })
         }
         className="w-full text-left px-4 py-3 rounded-lg transition-colors"
         style={{
           backgroundColor:
-            form.metricId === ""
-              ? "hsl(var(--foreground) / 0.08)"
-              : "transparent",
+            !hasMetric ? "hsl(var(--foreground) / 0.08)" : "transparent",
           border:
-            form.metricId === ""
+            !hasMetric
               ? "1px solid hsl(var(--foreground) / 0.15)"
               : "1px solid hsl(var(--muted))",
         }}
@@ -221,10 +226,11 @@ function StepMetric({
         <span className="text-[14px]">No metric</span>
       </button>
 
+      {/* Existing metrics */}
       {metrics.map((m) => (
         <button
           key={m.id}
-          onClick={() => onChange({ metricId: m.id })}
+          onClick={() => onChange({ metricId: m.id, newMetric: { name: "", unit: "" } })}
           className="w-full text-left px-4 py-3 rounded-lg transition-colors"
           style={{
             backgroundColor:
@@ -243,11 +249,64 @@ function StepMetric({
         </button>
       ))}
 
-      {form.metricId && (
+      {/* Create new metric */}
+      <button
+        onClick={() => onChange({ metricId: "new" })}
+        className="w-full text-left px-4 py-3 rounded-lg transition-colors"
+        style={{
+          backgroundColor:
+            form.metricId === "new"
+              ? "hsl(var(--foreground) / 0.08)"
+              : "transparent",
+          border:
+            form.metricId === "new"
+              ? "1px solid hsl(var(--foreground) / 0.15)"
+              : "1px solid hsl(var(--muted))",
+        }}
+      >
+        <span className="text-[14px]">+ New metric</span>
+      </button>
+
+      {/* New metric fields */}
+      {form.metricId === "new" && (
+        <div className="flex gap-3 mt-1">
+          <div className="flex-1">
+            <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+              Name
+            </label>
+            <input
+              type="text"
+              value={form.newMetric.name}
+              onChange={(e) =>
+                onChange({ newMetric: { ...form.newMetric, name: e.target.value } })
+              }
+              placeholder="e.g. Grip strength"
+              className="mt-1 w-full bg-transparent border-b border-muted-foreground/20 pb-2 text-[14px] outline-none focus:border-foreground/40 transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+          <div className="w-20">
+            <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
+              Unit
+            </label>
+            <input
+              type="text"
+              value={form.newMetric.unit}
+              onChange={(e) =>
+                onChange({ newMetric: { ...form.newMetric, unit: e.target.value } })
+              }
+              placeholder="kg"
+              className="mt-1 w-full bg-transparent border-b border-muted-foreground/20 pb-2 text-[14px] outline-none focus:border-foreground/40 transition-colors placeholder:text-muted-foreground/30"
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Start / Target values */}
+      {hasMetric && (
         <div className="flex gap-4 mt-2">
           <div className="flex-1">
             <label className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground">
-              Start
+              Current value
             </label>
             <input
               type="number"
@@ -973,19 +1032,39 @@ export default function GoalCreatePage() {
 
     // Create metric target if selected
     if (form.metricId) {
-      const id = uuid();
-      const row = {
-        id,
-        goal_id: goalId,
-        logbook_metric_id: form.metricId,
-        start_value: parseFloat(form.metricStartValue) || 0,
-        target_value: parseFloat(form.metricTargetValue) || 0,
-        target_revised_at: null,
-        previous_target: null,
-        updated_at: now,
-      };
-      await db.goal_metric_targets.add(row as never);
-      await queueWrite("goal_metric_targets", id, "upsert", row);
+      let metricId = form.metricId;
+
+      // Create new logbook metric if needed
+      if (metricId === "new" && form.newMetric.name.trim()) {
+        metricId = uuid();
+        const metricRow = {
+          id: metricId,
+          user_id: userId,
+          name: form.newMetric.name.trim(),
+          unit: form.newMetric.unit.trim() || "units",
+          stat_id: form.primaryStatId || null,
+          created_at: now,
+          updated_at: now,
+        };
+        await db.logbook_metrics.add(metricRow as never);
+        await queueWrite("logbook_metrics", metricId, "upsert", metricRow);
+      }
+
+      if (metricId && metricId !== "new") {
+        const id = uuid();
+        const row = {
+          id,
+          goal_id: goalId,
+          logbook_metric_id: metricId,
+          start_value: parseFloat(form.metricStartValue) || 0,
+          target_value: parseFloat(form.metricTargetValue) || 0,
+          target_revised_at: null,
+          previous_target: null,
+          updated_at: now,
+        };
+        await db.goal_metric_targets.add(row as never);
+        await queueWrite("goal_metric_targets", id, "upsert", row);
+      }
     }
 
     // Create milestones
