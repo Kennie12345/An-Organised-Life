@@ -9,19 +9,30 @@ interaction design, and its behavioural science rationale.
 
 **Screen:** Opens automatically on first daily app launch.
 
-**Purpose:** Creates a daily anchor. Forces brief intentional planning before
-the day begins. Replaces the impulse to jump directly into reactive work.
+**Purpose:** Creates a daily anchor. Light intentional focus before the day
+begins — grounded in already-committed goals, not fresh cognitive work.
 
 **Interaction:**
 1. User sees yesterday's summary (tasks completed, XP earned, stat changes)
-2. User sets 3 intentions for today (free text, optional LLM prompt if stuck)
+2. User sees their active goals (up to 3) and taps one to mark as today's focus
 3. User selects morning mood (1–5 emoji scale)
 4. User taps "Begin Day" — morning sequence checklist opens
 
-**Behavioural science:** Implementation intentions. The act of stating what
-you will do today significantly increases follow-through (Gollwitzer, 1999).
+**Progressive enhancement (Phase 6/7):** When LLM and Google Calendar are
+available, the system pre-selects a suggested focus goal based on calendar
+availability and recent progress. User confirms or overrides with one tap.
 
-**Data written:** daily_plans row created with plan_date, intentions, mood_start.
+**Behavioural science:** Implementation intentions (Gollwitzer, 1999). Selecting
+today's focus goal from an already-committed list anchors the day without
+requiring fresh generative effort — appropriate for ADHD users for whom blank
+inputs create friction rather than clarity.
+
+**Design note:** Goal definition is a one-time upfront investment (onboarding)
+rechecked weekly (weekly review). Morning should be confirmatory, not generative.
+
+**Ad-hoc intentions:** A "+ Add intention" button below the goal cards allows capture of unexpected events (e.g. "family member in hospital"). On submit, a lightweight prompt asks "Does this connect to any of your goals?" — active goals shown as optional tags. User can skip. Unlinked intentions surface in the weekly review for retrospective reflection.
+
+**Data written:** daily_plans row created with plan_date, intentions (JSON: `{ focus_goal_id, ad_hoc: [{ text, linked_goal_id }] }`), mood_start.
 
 ---
 

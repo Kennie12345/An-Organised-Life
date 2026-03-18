@@ -144,7 +144,8 @@ these docs must be able to build the system from them without ambiguity.
 
 | 2026-03-17 | Game layer re-skinned from hero RPG to tamagotchi/pet-raising. "Character" → "Pet", "Kingdom" → "Habitat". Level drop framed as pet weakening through neglect. All mechanics unchanged — purely a thematic layer. | Principle 7 (strengthened — emotional hook of pet neglect is more visceral than a dropping number) | Accepted |
 
-*(Add new rows here as changes are made)*
+| 2026-03-18 | Morning Planning: optional "+ Add intention" button for ad-hoc capture. On submit, lightweight goal-link prompt (skippable). Unlinked intentions surface in weekly review. | Principle 5 (strengthened — low-friction capture), Principle 4 (maintained — goal continuity check) | Accepted |
+| 2026-03-18 | Morning Planning redesigned: blank 3-intention text inputs replaced with goal-focus selection (tap one of up to 3 active goals). LLM + calendar pre-selection deferred to Phase 6/7 as progressive enhancement. `daily_plans.intentions` field repurposed to store `{ focus_goal_id }`. | Principle 4 (strengthened — goal investment stays upfront at onboarding/weekly review, not repeated daily), Principle 6 (base model ships first) | Accepted — original design was an LLM assumption, not a deliberate user decision |
 
 ---
 
