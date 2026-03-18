@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
 import { ServiceWorkerRegister } from "@/components/service-worker-register";
@@ -18,6 +18,12 @@ export const metadata: Metadata = {
     statusBarStyle: "black-translucent",
     title: "An Organised Life",
   },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover", // required for Dynamic Island / notch safe areas
 };
 
 const geistSans = Geist({
