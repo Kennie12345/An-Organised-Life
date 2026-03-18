@@ -8,6 +8,7 @@ import {
   type DbScratchPadItem,
   type DbGoal,
 } from "@/db";
+
 import { queueWrite } from "@/lib/sync";
 import { Plus, ChevronRight, Clock, MessageCircle, Archive, Sparkles } from "lucide-react";
 
@@ -78,6 +79,7 @@ export default function ScratchPadPage() {
   const [userId, setUserId] = useState<string | null>(null);
   const [newIdea, setNewIdea] = useState("");
   const [showInput, setShowInput] = useState(false);
+  const [activeGoalCount, setActiveGoalCount] = useState(0);
 
   const loadData = useCallback(async () => {
     const supabase = createClient();
@@ -85,6 +87,13 @@ export default function ScratchPadPage() {
     const uid = data?.user?.id;
     if (!uid) return;
     setUserId(uid);
+
+    const goalCount = await db.goals
+      .where("user_id")
+      .equals(uid)
+      .filter((g: DbGoal) => g.status === "active")
+      .count();
+    setActiveGoalCount(goalCount);
 
     const all = await db.scratch_pad_items
       .where("user_id")
@@ -182,13 +191,12 @@ export default function ScratchPadPage() {
   };
 
   const canInterrogate = (item: DbScratchPadItem) => {
-    // Can start interrogation after 24h quarantine
-    const quarantineOver =
-      Date.now() - new Date(item.created_at).getTime() >= 24 * 60 * 60 * 1000;
-    return (
-      (item.status === "pending" && quarantineOver) ||
-      item.status === "interrogating"
-    );
+    if (item.status === "interrogating") return true;
+    if (item.status !== "pending") return false;
+    // Skip quarantine for first-time users (no active goals)
+    if (activeGoalCount === 0) return true;
+    // Otherwise require 24h quarantine
+    return Date.now() - new Date(item.created_at).getTime() >= 24 * 60 * 60 * 1000;
   };
 
   if (loading) {
