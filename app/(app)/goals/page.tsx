@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 import {
   db,
@@ -15,7 +16,9 @@ import {
   type DbHabit,
   type DbTask,
 } from "@/db";
-import { Plus } from "lucide-react";
+import { queueWrite } from "@/lib/sync";
+import { awardTaskXp } from "@/utils/task-xp";
+import { Check, Plus } from "lucide-react";
 
 /* ── Types ── */
 
@@ -163,13 +166,11 @@ function StakeEffects({
 function GoalCardView({
   card,
   statMap,
-  expanded,
-  onToggle,
+  onNavigate,
 }: {
   card: GoalCard;
   statMap: Map<string, DbStat>;
-  expanded: boolean;
-  onToggle: () => void;
+  onNavigate: () => void;
 }) {
   const pendingTasks = card.tasks.filter((t) => !t.completed_at);
 
@@ -177,7 +178,7 @@ function GoalCardView({
     <div>
       <button
         className="w-full text-left active:opacity-50 transition-opacity"
-        onClick={onToggle}
+        onClick={onNavigate}
       >
         {/* Goal name + stat */}
         <div className="flex items-baseline justify-between">
@@ -220,64 +221,6 @@ function GoalCardView({
         </p>
       )}
 
-      {/* Expanded detail: full task list, grace period */}
-      {expanded && (
-        <div className="mt-3 mb-1 space-y-3 pl-2 border-l border-muted ml-1">
-          {/* Grace period */}
-          {card.goal.grace_period_value > 0 && (
-            <p className="text-[10px] text-muted-foreground">
-              Grace: {card.goal.grace_period_value} {card.goal.grace_period_unit}
-            </p>
-          )}
-
-          {/* Linked habits with detail */}
-          {card.linkedHabits.length > 0 && (
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1.5">
-                Linked habits
-              </p>
-              <div className="space-y-1">
-                {card.linkedHabits.map((h) => (
-                  <p key={h.id} className="text-[12px]">
-                    {h.name}
-                    <span className="text-muted-foreground ml-1.5">
-                      {h.time_block}
-                    </span>
-                  </p>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {/* Full task list */}
-          {card.tasks.length > 0 && (
-            <div>
-              <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1.5">
-                Tasks · {card.tasks.filter((t) => t.completed_at).length}/{card.tasks.length}
-              </p>
-              <div className="space-y-1">
-                {pendingTasks.map((t) => (
-                  <p key={t.id} className="text-[12px]">
-                    {t.name}
-                  </p>
-                ))}
-                {card.tasks
-                  .filter((t) => t.completed_at)
-                  .slice(0, 3)
-                  .map((t) => (
-                    <p
-                      key={t.id}
-                      className="text-[12px] text-muted-foreground line-through"
-                    >
-                      {t.name}
-                    </p>
-                  ))}
-              </div>
-            </div>
-          )}
-        </div>
-      )}
-
       {/* Separator */}
       <div className="mt-4 border-b border-muted" />
     </div>
@@ -286,18 +229,219 @@ function GoalCardView({
 
 /* ── Page ── */
 
+/* ── Task Manager Section ── */
+
+function TaskManager({
+  cards,
+  unlinkedTasks,
+  userId,
+  onRefresh,
+}: {
+  cards: GoalCard[];
+  unlinkedTasks: DbTask[];
+  userId: string;
+  onRefresh: () => void;
+}) {
+  const [newTaskName, setNewTaskName] = useState("");
+  const [goalLinkPrompt, setGoalLinkPrompt] = useState<string | null>(null); // task id
+
+  const addTask = async () => {
+    if (!newTaskName.trim()) return;
+    const now = new Date().toISOString();
+    const taskId = crypto.randomUUID();
+    const task = {
+      id: taskId,
+      user_id: userId,
+      name: newTaskName.trim(),
+      notes: null,
+      goal_id: null,
+      milestone_id: null,
+      source: "captured" as const,
+      goal_linked_at: null,
+      completed_at: null,
+      xp_awarded: null,
+      created_at: now,
+      updated_at: now,
+    };
+    await db.tasks.add(task as never);
+    await queueWrite("tasks", taskId, "upsert", task);
+    setNewTaskName("");
+    onRefresh();
+  };
+
+  const toggleTask = async (task: DbTask) => {
+    const now = new Date().toISOString();
+    if (task.completed_at) {
+      // Un-complete
+      await db.tasks.update(task.id, { completed_at: null, updated_at: now });
+      await queueWrite("tasks", task.id, "upsert", {
+        ...task,
+        completed_at: null,
+        updated_at: now,
+      });
+      onRefresh();
+    } else {
+      // Complete — award XP and show goal link prompt if unlinked
+      await db.tasks.update(task.id, { completed_at: now, updated_at: now });
+      await queueWrite("tasks", task.id, "upsert", {
+        ...task,
+        completed_at: now,
+        updated_at: now,
+      });
+      await awardTaskXp(userId, task.id);
+      if (!task.goal_id && cards.length > 0) {
+        setGoalLinkPrompt(task.id);
+      }
+      onRefresh();
+    }
+  };
+
+  const linkTaskToGoal = async (taskId: string, goalId: string) => {
+    const now = new Date().toISOString();
+    const task = await db.tasks.get(taskId);
+    if (!task) return;
+    await db.tasks.update(taskId, {
+      goal_id: goalId,
+      goal_linked_at: now,
+      updated_at: now,
+    });
+    await queueWrite("tasks", taskId, "upsert", {
+      ...task,
+      goal_id: goalId,
+      goal_linked_at: now,
+      updated_at: now,
+    });
+    setGoalLinkPrompt(null);
+    onRefresh();
+  };
+
+  const allPending = unlinkedTasks.filter((t) => !t.completed_at);
+  const allCompleted = unlinkedTasks.filter((t) => t.completed_at);
+
+  return (
+    <div className="mt-10">
+      <p className="text-[13px] uppercase tracking-[0.15em] text-muted-foreground mb-4">
+        Tasks
+      </p>
+
+      {/* Unlinked pending tasks */}
+      {allPending.length > 0 && (
+        <div className="mb-3 space-y-0.5">
+          {allPending.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => toggleTask(t)}
+              className="w-full flex items-center gap-3 py-2 text-left active:opacity-50"
+            >
+              <div
+                className="w-[16px] h-[16px] rounded-sm border flex items-center justify-center flex-shrink-0"
+                style={{
+                  borderColor: "hsl(var(--muted-foreground) / 0.3)",
+                }}
+              />
+              <span className="text-[13px]">{t.name}</span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Unlinked completed tasks */}
+      {allCompleted.length > 0 && (
+        <div className="mb-3 space-y-0.5">
+          {allCompleted.slice(0, 5).map((t) => (
+            <button
+              key={t.id}
+              onClick={() => toggleTask(t)}
+              className="w-full flex items-center gap-3 py-2 text-left active:opacity-50"
+            >
+              <div
+                className="w-[16px] h-[16px] rounded-sm border flex items-center justify-center flex-shrink-0"
+                style={{
+                  borderColor: "hsl(152 60% 48%)",
+                  backgroundColor: "hsl(152 60% 48% / 0.1)",
+                }}
+              >
+                <Check
+                  size={10}
+                  strokeWidth={2.5}
+                  style={{ color: "hsl(152 60% 48%)" }}
+                />
+              </div>
+              <span className="text-[13px] text-muted-foreground line-through">
+                {t.name}
+              </span>
+            </button>
+          ))}
+        </div>
+      )}
+
+      {/* Add task */}
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          value={newTaskName}
+          onChange={(e) => setNewTaskName(e.target.value)}
+          onKeyDown={(e) => e.key === "Enter" && addTask()}
+          placeholder="Add a task…"
+          className="flex-1 bg-transparent border-b border-muted-foreground/15 pb-1.5 text-[13px] outline-none focus:border-foreground/30 transition-colors placeholder:text-muted-foreground/30"
+        />
+        {newTaskName.trim() && (
+          <button
+            onClick={addTask}
+            className="p-1 text-muted-foreground active:text-foreground"
+          >
+            <Plus size={16} />
+          </button>
+        )}
+      </div>
+
+      {/* Goal link prompt (bottom sheet style) */}
+      {goalLinkPrompt && (
+        <div className="fixed inset-0 z-50 flex items-end justify-center bg-black/30">
+          <div
+            className="w-full max-w-md rounded-t-2xl px-6 pt-5 pb-8 space-y-3"
+            style={{ backgroundColor: "hsl(var(--background))" }}
+          >
+            <p className="text-[14px]">Does this contribute to a goal?</p>
+            {cards.map((c) => (
+              <button
+                key={c.goal.id}
+                onClick={() => linkTaskToGoal(goalLinkPrompt, c.goal.id)}
+                className="w-full text-left px-4 py-3 rounded-lg border transition-colors active:opacity-50"
+                style={{ borderColor: "hsl(var(--muted))" }}
+              >
+                <span className="text-[13px]">{c.goal.name}</span>
+              </button>
+            ))}
+            <button
+              onClick={() => setGoalLinkPrompt(null)}
+              className="w-full text-center py-3 text-[13px] text-muted-foreground active:opacity-50"
+            >
+              Skip
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ── Page ── */
+
 export default function GoalsPage() {
   const [cards, setCards] = useState<GoalCard[]>([]);
+  const [unlinkedTasks, setUnlinkedTasks] = useState<DbTask[]>([]);
   const [statMap, setStatMap] = useState<Map<string, DbStat>>(new Map());
   const [loading, setLoading] = useState(true);
-  const [expandedGoal, setExpandedGoal] = useState<string | null>(null);
+  const [userId, setUserId] = useState<string | null>(null);
+  const router = useRouter();
 
-  useEffect(() => {
-    async function load() {
+  const loadData = useCallback(async () => {
       const supabase = createClient();
       const { data } = await supabase.auth.getUser();
       const uid = data?.user?.id;
       if (!uid) return;
+      setUserId(uid);
 
       // Load all stats for lookup
       const allStats = await db.stats.where("user_id").equals(uid).toArray();
@@ -387,15 +531,18 @@ export default function GoalsPage() {
         }),
       );
 
+      // Load unlinked tasks (no goal_id)
+      const allTasks = await db.tasks.where("user_id").equals(uid).toArray();
+      const unlinked = allTasks.filter((t) => !t.goal_id);
+      setUnlinkedTasks(unlinked);
+
       setCards(goalCards);
       setLoading(false);
-    }
-    load();
   }, []);
 
-  const handleToggle = useCallback((goalId: string) => {
-    setExpandedGoal((prev) => (prev === goalId ? null : goalId));
-  }, []);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
 
   if (loading) {
     return (
@@ -432,24 +579,31 @@ export default function GoalsPage() {
               key={card.goal.id}
               card={card}
               statMap={statMap}
-              expanded={expandedGoal === card.goal.id}
-              onToggle={() => handleToggle(card.goal.id)}
+              onNavigate={() => router.push(`/goals/${card.goal.id}`)}
             />
           ))}
         </div>
       )}
 
-      {/* Add Goal button → Scratch Pad */}
+      {/* Add Goal button */}
       {cards.length < 3 && (
         <button
           className="mt-8 w-full flex items-center justify-center gap-2 py-3 text-[13px] text-muted-foreground active:opacity-50 transition-opacity border border-dashed border-muted-foreground/20 rounded-lg"
-          onClick={() => {
-            // Scratch Pad is Phase 6 — placeholder navigation
-          }}
+          onClick={() => router.push("/goals/create")}
         >
           <Plus size={16} strokeWidth={1.5} />
-          Add Goal via Scratch Pad
+          Add Goal
         </button>
+      )}
+
+      {/* Task Manager */}
+      {userId && (
+        <TaskManager
+          cards={cards}
+          unlinkedTasks={unlinkedTasks}
+          userId={userId}
+          onRefresh={loadData}
+        />
       )}
     </div>
   );
