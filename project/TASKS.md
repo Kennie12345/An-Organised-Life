@@ -261,31 +261,42 @@
 **Docs to read:** /docs/03-features.md (Feature 9, Feature 14)
 **Decision points:** ✋ 6.A — API key, ✋ 6.B — Approve conversation quality
 
-- [ ] ✋ 6.A DECISION POINT
-      Claude API key required. User must provide key or confirm how it
-      will be stored/accessed. Do not hardcode in source.
-- [ ] 6.1 Build Claude API client service
-      — Model: claude-sonnet-4-6 (or latest)
-      — System prompt defines coach persona
-      — Ref: /docs/03-features.md (Feature 14 — LLM Coach)
-- [ ] 6.2 Build Scratch Pad screen (Feature 9)
-      — Raw idea capture (single text field, no required structure)
-      — Shows all items by status (pending / interrogating / promoted / archived)
-      — 24h quarantine timer visible
-      — 48h auto-archive logic
-- [ ] 6.3 Implement scratch pad interrogation conversation
-      — 5 structured questions delivered conversationally
-      — LLM pushes back on vague answers
-      — Commitment score captured at end
-      — Ref: /docs/03-features.md (Feature 9 interaction steps)
+- [x] ✋ 6.A DECISION POINT — approved (2026-03-19)
+      API key stored in .env.local as ANTHROPIC_API_KEY (server-side only).
+      .env.example updated with placeholder.
+- [x] 6.1 Build Claude API client service
+      — Route handler at /api/chat using @anthropic-ai/sdk
+      — Model: claude-sonnet-4-6-20250514
+      — System prompt: coach persona, ADHD-aware, warm but direct
+      — Interrogation mode with 5 structured questions
+      — Extracts COMMITMENT_SCORE from response
+- [x] 6.2 Build Scratch Pad screen (Feature 9)
+      — Raw idea capture (textarea, no structure)
+      — Items by status: pending/interrogating first, then promoted/archived
+      — 24h quarantine timer visible (hours:minutes countdown)
+      — 48h auto-archive on page load
+      — Status badges (Quarantine/In progress/Promoted/Archived)
+- [x] 6.3 Implement scratch pad interrogation conversation
+      — Chat UI at /scratch-pad/[id] with message bubbles
+      — Resumes conversation from saved llm_conversation JSON
+      — COMMITMENT_SCORE extraction and display (large number)
+      — Score >= 7 shows "Promote to Goal" button
+      — Score < 7 shows archive option
 - [ ] ✋ 6.B DECISION POINT
       Kenneth must review 2–3 example interrogation conversations
       and approve the tone and quality before completing this phase.
-- [ ] 6.4 Build goal promotion flow from scratch pad
-      — Only available if commitment score >= 7
-      — Flows into goal creation (Phase 4)
-- [ ] 6.5 Write scratch_pad_items record throughout conversation
-- [ ] 6.6 Write notification_schedules entry for 24h reminder on capture
+- [x] 6.4 Build goal promotion flow from scratch pad
+      — "Promote to Goal" button (score >= 7 only)
+      — Routes to /goals/create?from_scratch=[id] with pre-filled name
+      — Max 3 active goals enforced
+      — "Add Goal" on goals board now routes to /scratch-pad
+- [x] 6.5 Write scratch_pad_items record throughout conversation
+      — Created on capture, updated on interrogation start, conversation saved
+      — commitment_score and interrogation_completed_at set on score extraction
+      — status transitions: pending → interrogating → promoted/archived
+- [x] 6.6 Write notification_schedules entry for 24h reminder on capture
+      — type: scratch_pad_ready, entity_type: scratch_pad_item
+      — Created on idea capture
 
 **Acceptance criteria:**
 - Idea captured with one tap / submit

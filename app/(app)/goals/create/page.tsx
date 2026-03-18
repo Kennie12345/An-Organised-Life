@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { ChevronLeft, ChevronRight, Check, Plus, X, Minus } from "lucide-react";
 import { createClient } from "@/lib/supabase/client";
@@ -831,6 +831,7 @@ function StepConfirm({
 
 export default function GoalCreatePage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(0);
   const [form, setForm] = useState<FormState>(INITIAL_FORM);
   const [stats, setStats] = useState<DbStat[]>([]);
@@ -860,9 +861,18 @@ export default function GoalCreatePage() {
       setStats(s);
       setHabits(h);
       setMetrics(m);
+
+      // Pre-fill from scratch pad if promoted
+      const scratchId = searchParams.get("from_scratch");
+      if (scratchId) {
+        const scratchItem = await db.scratch_pad_items.get(scratchId);
+        if (scratchItem) {
+          setForm((f) => ({ ...f, name: scratchItem.raw_idea }));
+        }
+      }
     }
     load();
-  }, []);
+  }, [searchParams]);
 
   const onChange = useCallback(
     (patch: Partial<FormState>) => setForm((f) => ({ ...f, ...patch })),

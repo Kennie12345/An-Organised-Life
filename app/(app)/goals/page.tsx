@@ -589,10 +589,10 @@ export default function GoalsPage() {
       {cards.length < 3 && (
         <button
           className="mt-8 w-full flex items-center justify-center gap-2 py-3 text-[13px] text-muted-foreground active:opacity-50 transition-opacity border border-dashed border-muted-foreground/20 rounded-lg"
-          onClick={() => router.push("/goals/create")}
+          onClick={() => router.push("/scratch-pad")}
         >
           <Plus size={16} strokeWidth={1.5} />
-          Add Goal
+          Add Goal via Scratch Pad
         </button>
       )}
 
