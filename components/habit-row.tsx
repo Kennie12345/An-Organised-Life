@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
 import { SevenDayGrid } from "./seven-day-grid";
 import { CompletionInput } from "./completion-input";
 import type { DbHabit, DbHabitLog } from "@/db";
@@ -33,7 +34,21 @@ export function HabitRow({
   // --- COMPLETED ---
   if (status === "completed" && log) {
     return (
-      <div className="px-4 py-3.5 border-b border-border/50">
+      <div className="relative px-4 py-3.5 border-b border-border/50">
+        {/* XP award animation — flies up from top-right of the row */}
+        <AnimatePresence>
+          {xpFlash !== undefined && (
+            <motion.div
+              key={xpFlash}
+              initial={{ opacity: 0, y: 0 }}
+              animate={{ opacity: [0, 1, 1, 0], y: [0, -8, -28, -52] }}
+              transition={{ duration: 1.4, times: [0, 0.06, 0.5, 1], ease: "easeOut" }}
+              className="pointer-events-none absolute right-4 top-3 text-sm font-bold text-foreground z-10"
+            >
+              +{xpFlash} XP
+            </motion.div>
+          )}
+        </AnimatePresence>
         <div className="flex items-start gap-3">
           <div className="mt-0.5 w-5 h-5 rounded-full bg-foreground flex items-center justify-center shrink-0">
             <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
@@ -84,9 +99,6 @@ export function HabitRow({
               config={config}
               onComplete={(val) => onComplete(val, false)}
             />
-            {xpFlash !== undefined && (
-              <p className="mt-2 text-sm font-semibold text-foreground">+{xpFlash} XP</p>
-            )}
             <SevenDayGrid completedDates={weekCompletedDates} />
           </div>
         </div>
