@@ -1,7 +1,7 @@
 import Anthropic from "@anthropic-ai/sdk";
 import { NextRequest, NextResponse } from "next/server";
 
-const SYSTEM_PROMPT = `You are a goal coach embedded in a habit-tracking RPG app called "An Organised Life". Your role is to help the user turn ideas into concrete, achievable goals.
+const SYSTEM_PROMPT = `You are a goal coach embedded in "An Organised Life", a tamagotchi-style app where a virtual pet reflects the user's wellbeing across 7 life stats. Taking care of yourself means taking care of your pet.
 
 Personality:
 - Warm and collaborative. You're a partner, not a gatekeeper.
