@@ -82,6 +82,9 @@ export default function InterrogationPage() {
           updated_at: now,
         });
 
+        // Show the page while LLM responds
+        setLoading(false);
+
         // Get first LLM message
         const firstMessages: Message[] = [
           {
@@ -291,8 +294,19 @@ export default function InterrogationPage() {
         ref={scrollRef}
         className="flex-1 overflow-y-auto px-6 space-y-4 min-h-0"
       >
+        {/* Idea card */}
+        <div
+          className="rounded-xl px-4 py-3 text-[13px] leading-relaxed"
+          style={{ backgroundColor: "hsl(var(--muted))" }}
+        >
+          <p className="text-[10px] uppercase tracking-[0.15em] text-muted-foreground mb-1">
+            Your idea
+          </p>
+          <p>{item.raw_idea}</p>
+        </div>
+
         {messages
-          .filter((m) => m.role !== "user" || !m.content.startsWith("I have a new idea"))
+          .filter((m) => !(m.role === "user" && m.content.startsWith("I have a new idea")))
           .map((msg, i) => (
             <div
               key={i}
