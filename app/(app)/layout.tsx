@@ -1,9 +1,11 @@
+import { Suspense } from "react";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
 import { BottomNav } from "@/components/bottom-nav";
 import { SyncStatusIndicator } from "@/components/sync-status";
 import { WaterTracker } from "@/components/water-tracker";
 import { MedicationTracker } from "@/components/medication-tracker";
+import { DailyJobsProvider } from "@/components/daily-jobs-provider";
 
 export default async function AppLayout({
   children,
@@ -35,10 +37,11 @@ export default async function AppLayout({
 
       {/* scroll-ios gives native momentum scrolling; pb-16 clears the fixed bottom nav */}
       <main className="flex-1 scroll-ios min-h-0">
-        {children}
+        <Suspense>{children}</Suspense>
       </main>
 
       <BottomNav />
+      <DailyJobsProvider />
     </div>
   );
 }
