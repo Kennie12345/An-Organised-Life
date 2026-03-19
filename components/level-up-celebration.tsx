@@ -45,8 +45,8 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
               transition={{ duration: 0.8, ease: "easeOut" }}
               className="flex justify-center mb-4"
             >
-              <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center shadow-lg">
-                <Star className="w-10 h-10 text-background" strokeWidth={1.5} fill="currentColor" />
+              <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center shadow-lg">
+                <Star className="w-10 h-10 text-amber-300" strokeWidth={1.5} fill="currentColor" />
               </div>
             </motion.div>
 
@@ -72,7 +72,7 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
               animate={{ opacity: 1 }}
               transition={{ delay: 0.7 }}
               onClick={onDismiss}
-              className="w-full rounded-2xl bg-foreground py-4 text-sm font-bold text-background active:opacity-70"
+              className="w-full rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground active:opacity-70"
             >
               Continue
             </motion.button>

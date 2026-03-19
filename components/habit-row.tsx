@@ -50,7 +50,7 @@ export function HabitRow({
           )}
         </AnimatePresence>
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 w-5 h-5 rounded-full bg-foreground flex items-center justify-center shrink-0">
+          <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
             <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
               <path
                 d="M1 4L3.5 6.5L9 1"
@@ -143,7 +143,7 @@ export function HabitRow({
                     setShowWarning(false);
                     setOosActive(true);
                   }}
-                  className="flex-1 rounded-xl bg-foreground py-2.5 text-xs font-medium text-background active:opacity-70"
+                  className="flex-1 rounded-xl bg-primary py-2.5 text-xs font-medium text-primary-foreground active:opacity-70"
                 >
                   Proceed anyway
                 </button>

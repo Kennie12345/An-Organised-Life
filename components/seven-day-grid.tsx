@@ -36,7 +36,7 @@ export function SevenDayGrid({ completedDates }: SevenDayGridProps) {
             <div
               className={`w-3.5 h-3.5 rounded-full ${
                 completed
-                  ? "bg-foreground"
+                  ? "bg-primary"
                   : isFuture
                   ? "opacity-0"
                   : "border border-border"

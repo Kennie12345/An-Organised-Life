@@ -27,13 +27,13 @@ export function BottomNav() {
               href={href}
               // min touch target: Apple HIG recommends 44×44pt
               className={`flex flex-1 flex-col items-center justify-center gap-1 text-xs active:opacity-60 transition-opacity ${
-                active ? "text-foreground" : "text-muted-foreground"
+                active ? "text-primary" : "text-muted-foreground"
               }`}
             >
               <Icon
                 size={22}
                 strokeWidth={active ? 2.5 : 1.75}
-                className={active ? "text-foreground" : "text-muted-foreground"}
+                className={active ? "text-primary" : "text-muted-foreground"}
               />
               <span className={active ? "font-semibold" : "font-normal"}>
                 {label}

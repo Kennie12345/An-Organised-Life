@@ -94,9 +94,9 @@ function ProgressDots({ current, total }: { current: number; total: number }) {
             width: i === current ? 20 : 5,
             backgroundColor:
               i < current
-                ? "hsl(var(--foreground) / 0.3)"
+                ? "hsl(var(--primary) / 0.3)"
                 : i === current
-                  ? "hsl(var(--foreground))"
+                  ? "hsl(var(--primary))"
                   : "hsl(var(--muted))",
           }}
         />
@@ -1259,10 +1259,10 @@ export default function GoalCreatePage() {
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[14px] transition-opacity"
             style={{
               backgroundColor: canProceed
-                ? "hsl(var(--foreground))"
+                ? "hsl(var(--primary))"
                 : "hsl(var(--muted))",
               color: canProceed
-                ? "hsl(var(--background))"
+                ? "hsl(var(--primary-foreground))"
                 : "hsl(var(--muted-foreground))",
               opacity: canProceed ? 1 : 0.5,
             }}
@@ -1276,8 +1276,8 @@ export default function GoalCreatePage() {
             disabled={saving}
             className="flex-1 flex items-center justify-center gap-2 py-3 rounded-lg text-[14px] transition-opacity"
             style={{
-              backgroundColor: "hsl(var(--foreground))",
-              color: "hsl(var(--background))",
+              backgroundColor: "hsl(var(--primary))",
+              color: "hsl(var(--primary-foreground))",
               opacity: saving ? 0.5 : 1,
             }}
           >

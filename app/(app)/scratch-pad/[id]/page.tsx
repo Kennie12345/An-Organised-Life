@@ -324,11 +324,11 @@ export default function InterrogationPage() {
                 style={{
                   backgroundColor:
                     msg.role === "user"
-                      ? "hsl(var(--foreground))"
+                      ? "hsl(var(--primary))"
                       : "hsl(var(--muted) / 0.5)",
                   color:
                     msg.role === "user"
-                      ? "hsl(var(--background))"
+                      ? "hsl(var(--primary-foreground))"
                       : "hsl(var(--foreground))",
                 }}
               >
@@ -367,8 +367,8 @@ export default function InterrogationPage() {
               onClick={promoteToGoal}
               className="flex-1 py-2.5 rounded-xl text-[13px] transition-opacity active:opacity-50"
               style={{
-                backgroundColor: "hsl(var(--foreground))",
-                color: "hsl(var(--background))",
+                backgroundColor: "hsl(var(--primary))",
+                color: "hsl(var(--primary-foreground))",
               }}
             >
               Create Goal
@@ -405,11 +405,11 @@ export default function InterrogationPage() {
               style={{
                 backgroundColor:
                   input.trim() && !sending
-                    ? "hsl(var(--foreground))"
+                    ? "hsl(var(--primary))"
                     : "hsl(var(--muted))",
                 color:
                   input.trim() && !sending
-                    ? "hsl(var(--background))"
+                    ? "hsl(var(--primary-foreground))"
                     : "hsl(var(--muted-foreground))",
                 opacity: input.trim() && !sending ? 1 : 0.5,
               }}

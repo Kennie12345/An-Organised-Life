@@ -189,10 +189,10 @@ function MetricDetail({
             className="px-4 py-1.5 rounded-lg text-[12px] transition-opacity"
             style={{
               backgroundColor: newValue.trim()
-                ? "hsl(var(--foreground))"
+                ? "hsl(var(--primary))"
                 : "hsl(var(--muted))",
               color: newValue.trim()
-                ? "hsl(var(--background))"
+                ? "hsl(var(--primary-foreground))"
                 : "hsl(var(--muted-foreground))",
               opacity: newValue.trim() ? 1 : 0.5,
             }}

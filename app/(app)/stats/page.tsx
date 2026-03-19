@@ -343,7 +343,7 @@ export default function StatsPage() {
         <div className="mt-3 mx-auto max-w-[220px] flex items-center gap-2">
           <div className="flex-1 h-[3px] rounded-full bg-muted overflow-hidden">
             <div
-              className="h-full rounded-full bg-foreground/15"
+              className="h-full rounded-full bg-primary/40"
               style={{ width: `${xpPct}%` }}
             />
           </div>

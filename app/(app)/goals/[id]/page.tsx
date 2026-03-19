@@ -512,9 +512,9 @@ export default function GoalDetailPage() {
                   className="flex-1 h-[3px] rounded-full"
                   style={{
                     backgroundColor: m.completed_at
-                      ? "hsl(var(--foreground))"
+                      ? "hsl(var(--primary))"
                       : "hsl(var(--muted))",
-                    opacity: m.completed_at ? 0.4 : 1,
+                    opacity: m.completed_at ? 0.6 : 1,
                   }}
                 />
               ))}

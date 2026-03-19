@@ -63,9 +63,9 @@ function MilestoneSteps({ milestones }: { milestones: DbGoalMilestone[] }) {
             className="flex-1 h-[3px] rounded-full"
             style={{
               backgroundColor: m.completed_at
-                ? "hsl(var(--foreground))"
+                ? "hsl(var(--primary))"
                 : "hsl(var(--muted))",
-              opacity: m.completed_at ? 0.4 : 1,
+              opacity: m.completed_at ? 0.6 : 1,
             }}
           />
         ))}
@@ -110,8 +110,8 @@ function MetricProgress({
           className="h-full rounded-full transition-all"
           style={{
             width: `${pct * 100}%`,
-            backgroundColor: "hsl(var(--foreground))",
-            opacity: 0.4,
+            backgroundColor: "hsl(var(--primary))",
+            opacity: 0.6,
           }}
         />
       </div>
@@ -530,10 +530,10 @@ function ScratchPadCapture({
             className="flex-1 py-3 rounded-lg text-[14px] transition-opacity"
             style={{
               backgroundColor: idea.trim()
-                ? "hsl(var(--foreground))"
+                ? "hsl(var(--primary))"
                 : "hsl(var(--muted))",
               color: idea.trim()
-                ? "hsl(var(--background))"
+                ? "hsl(var(--primary-foreground))"
                 : "hsl(var(--muted-foreground))",
               opacity: idea.trim() ? 1 : 0.5,
             }}

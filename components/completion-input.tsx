@@ -38,11 +38,11 @@ interface CompletionInputProps {
 }
 
 const BTN =
-  "rounded-xl bg-foreground px-4 py-3 text-sm font-semibold text-background disabled:opacity-40 active:opacity-70";
+  "rounded-xl bg-primary px-4 py-3 text-sm font-semibold text-primary-foreground disabled:opacity-40 active:opacity-70";
 const OPTION_BTN = (active: boolean) =>
   `rounded-xl border px-4 py-3 text-sm font-medium transition-colors active:opacity-70 ${
     active
-      ? "border-foreground bg-foreground text-background"
+      ? "border-primary bg-primary text-primary-foreground"
       : "border-border"
   }`;
 const INPUT =

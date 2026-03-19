@@ -193,7 +193,7 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
               }
               className={`w-full rounded-xl border px-4 py-3.5 text-left active:opacity-70 ${
                 focusGoalId === goal.id
-                  ? "border-foreground bg-foreground/5"
+                  ? "border-primary bg-primary/5"
                   : "border-border"
               }`}
             >
@@ -275,7 +275,7 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
             <button
               onClick={handleIntentionSubmit}
               disabled={!intentionDraft.trim()}
-              className="rounded-xl bg-foreground px-4 text-sm font-medium text-background disabled:opacity-40 active:opacity-70"
+              className="rounded-xl bg-primary px-4 text-sm font-medium text-primary-foreground disabled:opacity-40 active:opacity-70"
             >
               Add
             </button>
@@ -302,7 +302,7 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
               onClick={() => setMood(value)}
               className={`flex flex-1 flex-col items-center gap-1 rounded-xl border py-3 text-lg active:opacity-70 ${
                 mood === value
-                  ? "border-foreground bg-foreground/5"
+                  ? "border-primary bg-primary/5"
                   : "border-border"
               }`}
             >
@@ -317,7 +317,7 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
       <button
         onClick={handleBeginDay}
         disabled={!mood || saving || !!linkingIntention}
-        className="mt-2 w-full rounded-xl bg-foreground py-3.5 text-sm font-semibold text-background disabled:opacity-40 active:opacity-70"
+        className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40 active:opacity-70"
       >
         {saving ? "Starting…" : "Begin Day"}
       </button>

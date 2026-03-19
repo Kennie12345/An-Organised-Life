@@ -70,8 +70,8 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="flex justify-center mb-4"
         >
-          <div className="w-20 h-20 rounded-3xl bg-foreground flex items-center justify-center shadow-lg">
-            <Gift className="w-10 h-10 text-background" strokeWidth={1.5} />
+          <div className="w-20 h-20 rounded-3xl bg-amber-500 flex items-center justify-center shadow-lg">
+            <Gift className="w-10 h-10 text-white" strokeWidth={1.5} />
           </div>
         </motion.div>
 
@@ -85,7 +85,7 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
           <p className="text-xs font-bold tracking-widest text-muted-foreground mb-1">
             LOOT DROP
           </p>
-          <span className="inline-block text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-foreground text-background">
+          <span className="inline-block text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-amber-500 text-white">
             {typeLabel}
           </span>
         </motion.div>
@@ -112,7 +112,7 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
           onClick={onCollect}
-          className="w-full rounded-2xl bg-foreground py-4 text-sm font-bold text-background active:opacity-70"
+          className="w-full rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground active:opacity-70"
         >
           Collect
         </motion.button>

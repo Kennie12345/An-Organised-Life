@@ -247,10 +247,10 @@ export default function ScratchPadPage() {
               className="flex-1 py-2.5 rounded-lg text-[13px] transition-opacity"
               style={{
                 backgroundColor: newIdea.trim()
-                  ? "hsl(var(--foreground))"
+                  ? "hsl(var(--primary))"
                   : "hsl(var(--muted))",
                 color: newIdea.trim()
-                  ? "hsl(var(--background))"
+                  ? "hsl(var(--primary-foreground))"
                   : "hsl(var(--muted-foreground))",
                 opacity: newIdea.trim() ? 1 : 0.5,
               }}

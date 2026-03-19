@@ -173,7 +173,7 @@ export function EveningCheckIn({ userId, onComplete }: EveningCheckInProps) {
               onClick={() => setMood(value)}
               className={`flex flex-1 flex-col items-center gap-1 rounded-xl border py-3 text-lg active:opacity-70 ${
                 mood === value
-                  ? "border-foreground bg-foreground/5"
+                  ? "border-primary bg-primary/5"
                   : "border-border"
               }`}
             >
@@ -188,7 +188,7 @@ export function EveningCheckIn({ userId, onComplete }: EveningCheckInProps) {
       <button
         onClick={handleEndDay}
         disabled={!mood || saving}
-        className="mt-2 w-full rounded-xl bg-foreground py-3.5 text-sm font-semibold text-background disabled:opacity-40 active:opacity-70"
+        className="mt-2 w-full rounded-xl bg-primary py-3.5 text-sm font-semibold text-primary-foreground disabled:opacity-40 active:opacity-70"
       >
         {saving ? "Saving..." : "End Day"}
       </button>
