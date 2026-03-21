@@ -1,22 +1,27 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { TrendingDown } from "lucide-react";
+import { Star } from "lucide-react";
+import { Confetti } from "./confetti";
+import { Sparkles } from "./sparkles";
 
-interface LevelDropWarningProps {
+interface LevelUpCelebrationProps {
   level: number;
   show: boolean;
   onDismiss: () => void;
 }
 
-export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningProps) {
+export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebrationProps) {
   return (
     <AnimatePresence>
       {show && (
         <>
+          {/* Confetti burst */}
+          <Confetti show={show} count={50} />
+
           {/* Overlay */}
           <motion.div
-            key="leveldrop-overlay"
+            key="levelup-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -26,7 +31,7 @@ export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningPro
 
           {/* Bottom sheet */}
           <motion.div
-            key="leveldrop-sheet"
+            key="levelup-sheet"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -38,15 +43,18 @@ export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningPro
             {/* Pill handle */}
             <div className="w-10 h-1 rounded-full bg-border mx-auto mb-6" />
 
-            {/* Icon */}
+            {/* Star icon with sparkles */}
             <motion.div
-              initial={{ scale: 0 }}
-              animate={{ scale: [0, 1.1, 0.95, 1] }}
-              transition={{ duration: 0.5, ease: "easeOut" }}
+              initial={{ scale: 0, rotate: -20 }}
+              animate={{ scale: [0, 1.4, 0.9, 1.15, 1], rotate: [-20, 10, -5, 2, 0] }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
               className="flex justify-center mb-4"
             >
-              <div className="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center">
-                <TrendingDown className="w-10 h-10 text-muted-foreground" strokeWidth={1.5} />
+              <div className="relative">
+                <div className="w-20 h-20 rounded-3xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center shadow-lg shadow-amber-500/30">
+                  <Star className="w-10 h-10 text-white" strokeWidth={1.5} fill="currentColor" />
+                </div>
+                <Sparkles show={show} count={16} />
               </div>
             </motion.div>
 
@@ -54,15 +62,15 @@ export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningPro
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3 }}
+              transition={{ delay: 0.4 }}
               className="text-center mb-6"
             >
-              <p className="text-xs font-bold tracking-widest text-muted-foreground mb-2">
-                LEVEL DROP
+              <p className="text-xs font-bold tracking-widest text-amber-500 mb-2">
+                LEVEL UP
               </p>
-              <p className="text-4xl font-bold mb-1">Level {level}</p>
+              <p className="text-5xl font-bold mb-1">{level}</p>
               <p className="text-sm text-muted-foreground">
-                Your pet needs more care. Complete habits to recover.
+                Your pet is growing stronger.
               </p>
             </motion.div>
 
@@ -70,11 +78,11 @@ export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningPro
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.5 }}
+              transition={{ delay: 0.7 }}
               onClick={onDismiss}
-              className="w-full rounded-2xl border border-border py-4 text-sm font-medium text-foreground active:opacity-70"
+              className="w-full rounded-2xl bg-gradient-to-r from-amber-500 to-amber-600 py-4 text-sm font-bold text-white active:opacity-70 shadow-lg shadow-amber-500/20"
             >
-              Got it
+              Continue
             </motion.button>
           </motion.div>
         </>

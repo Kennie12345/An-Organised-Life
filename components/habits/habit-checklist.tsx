@@ -6,9 +6,13 @@ import type { DbHabit, DbHabitLog, DbHabitMaturity, DbHabitStreak, DbHabitStatWe
 import { calculateXp, type MaturityStage } from "@/utils/xp";
 import { applyXpGain } from "@/utils/leveling";
 import { HabitRow } from "./habit-row";
-import { LootDropReveal } from "./loot-drop-reveal";
-import { LevelUpCelebration } from "./level-up-celebration";
+import { LootDropReveal } from "@/components/gamification/loot-drop-reveal";
+import { LevelUpCelebration } from "@/components/gamification/level-up-celebration";
 import { uuid } from "@/utils/uuid";
+import { emitPetEvent } from "@/lib/pet-events";
+import { playSound } from "@/lib/sounds";
+import { haptic } from "@/lib/haptics";
+import { GoalSummaryBar } from "@/components/tracking/goal-summary-bar";
 
 type TimeBlock = "morning" | "afternoon" | "evening";
 
@@ -77,12 +81,11 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
   const [weights, setWeights] = useState<DbHabitStatWeight[]>([]);
   const [activeTab, setActiveTab] = useState<TimeBlock>("morning");
   const [loading, setLoading] = useState(true);
-  // Map of habitId → XP earned (shown briefly after completion)
   const [xpFlashes, setXpFlashes] = useState<Record<string, number>>({});
-  // Loot drop waiting to be revealed (catalog entry + drop id to acknowledge)
   const [pendingLoot, setPendingLoot] = useState<{ catalog: DbLootDropCatalog; dropId: string } | null>(null);
-  // Level-up celebration
   const [levelUpTo, setLevelUpTo] = useState<number | null>(null);
+  // Goal tags: habitId → { name, color }
+  const [goalTags, setGoalTags] = useState<Record<string, { name: string; color: string }>>({});
 
   const loadData = useCallback(async () => {
     const today = new Date().toISOString().split("T")[0];
@@ -130,6 +133,26 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
 
     setStates(newStates);
     setWeights(habitWeights);
+
+    // Load goal tags for habits
+    const [goalLinks, goals, stats] = await Promise.all([
+      db.goal_habit_links.toArray(),
+      db.goals.where("user_id").equals(userId).filter((g) => g.status === "active").toArray(),
+      db.stats.where("user_id").equals(userId).toArray(),
+    ]);
+    const goalMap = new Map(goals.map((g) => [g.id, g]));
+    const statMap = new Map(stats.map((s) => [s.id, s]));
+    const tags: Record<string, { name: string; color: string }> = {};
+    for (const link of goalLinks) {
+      const goal = goalMap.get(link.goal_id);
+      if (!goal) continue;
+      const stat = goal.primary_stat_id ? statMap.get(goal.primary_stat_id) : null;
+      tags[link.habit_id] = {
+        name: goal.name.length > 20 ? goal.name.slice(0, 18) + "..." : goal.name,
+        color: stat?.color ?? "hsl(var(--muted-foreground))",
+      };
+    }
+    setGoalTags(tags);
 
     // Default to the first tab that has incomplete habits
     const blocks: TimeBlock[] = ["morning", "afternoon", "evening"];
@@ -230,6 +253,10 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
 
       if (leveledUp) {
         setLevelUpTo(levelAfter);
+        emitPetEvent("level_up");
+      } else {
+        // Only emit habit_complete if not leveling up (level_up is higher priority)
+        emitPetEvent("habit_complete");
       }
     }
 
@@ -323,6 +350,7 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
             queued_at: now,
           });
           setPendingLoot({ catalog: picked, dropId });
+          emitPetEvent("loot_drop");
         }
       }
     }
@@ -456,29 +484,62 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
       <LootDropReveal catalog={pendingLoot.catalog} onCollect={handleCollectLoot} />
     )}
     <div className="flex flex-col">
-      {/* Tab bar */}
+      {/* Goal summary cards */}
+      <GoalSummaryBar userId={userId} />
+
+      {/* Tab bar with progress rings */}
       <div className="flex border-b border-border bg-background sticky top-0 z-10">
         {TABS.map(({ key, label }) => {
           const blockStates = states.filter((s) => s.habit.time_block === key);
           const total = blockStates.length;
           const done = tabDoneCount(key);
           const active = key === activeTab;
+          const pct = total > 0 ? done / total : 0;
+          const r = 8;
+          const circ = 2 * Math.PI * r;
+          const offset = circ * (1 - pct);
           return (
             <button
               key={key}
               onClick={() => setActiveTab(key)}
-              className={`flex-1 py-3 text-xs font-medium transition-colors active:opacity-70 ${
+              className={`flex-1 py-3 text-xs font-medium transition-colors active:opacity-70 flex items-center justify-center gap-1.5 ${
                 active
                   ? "border-b-2 border-foreground text-foreground"
                   : "text-muted-foreground"
               }`}
             >
-              {label}
               {total > 0 && (
-                <span className="ml-1 text-[10px]">
-                  {done}/{total}
-                </span>
+                <svg width="20" height="20" viewBox="0 0 20 20" className="shrink-0">
+                  <circle
+                    cx="10" cy="10" r={r}
+                    fill="none"
+                    stroke="hsl(var(--muted))"
+                    strokeWidth="2"
+                  />
+                  <circle
+                    cx="10" cy="10" r={r}
+                    fill="none"
+                    stroke={pct >= 1 ? "hsl(152 60% 48%)" : "hsl(var(--primary))"}
+                    strokeWidth="2"
+                    strokeLinecap="round"
+                    strokeDasharray={circ}
+                    strokeDashoffset={offset}
+                    transform="rotate(-90 10 10)"
+                    className="transition-all duration-500"
+                  />
+                  {pct >= 1 && (
+                    <path
+                      d="M7 10.5L9 12.5L13 8"
+                      fill="none"
+                      stroke="hsl(152 60% 48%)"
+                      strokeWidth="1.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    />
+                  )}
+                </svg>
               )}
+              {label}
             </button>
           );
         })}
@@ -501,6 +562,8 @@ export function HabitChecklist({ userId, onEndDay }: HabitChecklistProps) {
                 .map((l) => l.completed_at.split("T")[0])
                 .filter(Boolean)}
               xpFlash={xpFlashes[s.habit.id]}
+              goalTag={goalTags[s.habit.id]}
+              streak={s.streak?.current_streak ?? 0}
               onComplete={(value, oos) => handleComplete(s.habit, value, oos)}
             />
           ))

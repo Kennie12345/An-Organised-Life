@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Geist } from "next/font/google";
 import { ThemeProvider } from "next-themes";
-import { ServiceWorkerRegister } from "@/components/service-worker-register";
+import { ServiceWorkerRegister } from "@/components/scaffold/service-worker-register";
 import "./globals.css";
 
 const defaultUrl = process.env.VERCEL_URL

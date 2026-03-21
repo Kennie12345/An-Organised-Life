@@ -1,11 +1,13 @@
 import { Suspense } from "react";
 import { redirect } from "next/navigation";
+import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
-import { BottomNav } from "@/components/bottom-nav";
-import { SyncStatusIndicator } from "@/components/sync-status";
-import { WaterTracker } from "@/components/water-tracker";
-import { MedicationTracker } from "@/components/medication-tracker";
-import { DailyJobsProvider } from "@/components/daily-jobs-provider";
+import { BottomNav } from "@/components/layout/bottom-nav";
+import { SyncStatusIndicator } from "@/components/layout/sync-status";
+import { WaterTracker } from "@/components/tracking/water-tracker";
+import { MedicationTracker } from "@/components/tracking/medication-tracker";
+import { DailyJobsProvider } from "@/components/daily/daily-jobs-provider";
+import { Settings } from "lucide-react";
 
 export default async function AppLayout({
   children,

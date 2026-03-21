@@ -5,6 +5,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { SevenDayGrid } from "./seven-day-grid";
 import { CompletionInput } from "./completion-input";
 import type { DbHabit, DbHabitLog } from "@/db";
+import { haptic } from "@/lib/haptics";
 
 type RowStatus = "completed" | "active" | "upcoming";
 
@@ -14,7 +15,27 @@ interface HabitRowProps {
   log?: DbHabitLog;
   weekCompletedDates: string[];
   xpFlash?: number; // XP to display after completion
+  goalTag?: { name: string; color: string };
+  streak?: number;
   onComplete: (value: string, outOfSequence: boolean) => void;
+}
+
+/** Streak badge — shows flame icon + count for active streaks */
+function StreakBadge({ streak }: { streak: number }) {
+  if (streak < 2) return null;
+  const intensity =
+    streak >= 30 ? "text-red-500" :
+    streak >= 14 ? "text-orange-500" :
+    streak >= 7  ? "text-amber-500" :
+    "text-amber-400/70";
+  return (
+    <span className={`inline-flex items-center gap-0.5 text-[10px] font-bold ${intensity}`}>
+      <svg width="10" height="12" viewBox="0 0 10 12" fill="currentColor" className="shrink-0">
+        <path d="M5 0C5 0 1 4 1 7C1 9.2 2.8 11 5 11C7.2 11 9 9.2 9 7C9 4 5 0 5 0ZM5 9.5C3.6 9.5 2.5 8.4 2.5 7C2.5 5.2 5 2 5 2C5 2 7.5 5.2 7.5 7C7.5 8.4 6.4 9.5 5 9.5Z" />
+      </svg>
+      {streak}
+    </span>
+  );
 }
 
 export function HabitRow({
@@ -23,34 +44,56 @@ export function HabitRow({
   log,
   weekCompletedDates,
   xpFlash,
+  goalTag,
+  streak = 0,
   onComplete,
 }: HabitRowProps) {
   const [showWarning, setShowWarning] = useState(false);
-  const [oosActive, setOosActive] = useState(false); // out-of-sequence input shown
+  const [oosActive, setOosActive] = useState(false);
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const config = habit.completion_config as any;
 
+  const GoalTag = goalTag ? (
+    <span
+      className="inline-flex items-center gap-1 text-[10px] mt-0.5"
+      style={{ color: goalTag.color }}
+    >
+      <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ backgroundColor: goalTag.color }} />
+      {goalTag.name}
+    </span>
+  ) : null;
+
   // --- COMPLETED ---
   if (status === "completed" && log) {
     return (
-      <div className="relative px-4 py-3.5 border-b border-border/50">
+      <motion.div
+        initial={xpFlash !== undefined ? { scale: 0.97, backgroundColor: "hsl(152 60% 48% / 0.08)" } : false}
+        animate={{ scale: 1, backgroundColor: "transparent" }}
+        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+        className="relative px-4 py-3.5 border-b border-border/50"
+      >
         {/* XP award animation — flies up from top-right of the row */}
         <AnimatePresence>
           {xpFlash !== undefined && (
             <motion.div
               key={xpFlash}
-              initial={{ opacity: 0, y: 0 }}
-              animate={{ opacity: [0, 1, 1, 0], y: [0, -8, -28, -52] }}
+              initial={{ opacity: 0, y: 0, scale: 0.8 }}
+              animate={{ opacity: [0, 1, 1, 0], y: [0, -8, -28, -52], scale: [0.8, 1.2, 1, 0.8] }}
               transition={{ duration: 1.4, times: [0, 0.06, 0.5, 1], ease: "easeOut" }}
-              className="pointer-events-none absolute right-4 top-3 text-sm font-bold text-foreground z-10"
+              className="pointer-events-none absolute right-4 top-3 text-sm font-bold text-primary z-10"
             >
               +{xpFlash} XP
             </motion.div>
           )}
         </AnimatePresence>
         <div className="flex items-start gap-3">
-          <div className="mt-0.5 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0">
+          <motion.div
+            initial={xpFlash !== undefined ? { scale: 0 } : false}
+            animate={{ scale: 1 }}
+            transition={{ type: "spring", stiffness: 500, damping: 15, delay: 0.05 }}
+            className="mt-0.5 w-5 h-5 rounded-full bg-emerald-500 flex items-center justify-center shrink-0"
+          >
             <svg width="10" height="8" viewBox="0 0 10 8" fill="none">
               <path
                 d="M1 4L3.5 6.5L9 1"
@@ -60,9 +103,13 @@ export function HabitRow({
                 strokeLinejoin="round"
               />
             </svg>
-          </div>
+          </motion.div>
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-medium">{habit.name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-medium">{habit.name}</p>
+              <StreakBadge streak={streak} />
+            </div>
+            {GoalTag}
             {log.completion_value && log.completion_value !== "true" && (
               <p className="text-xs text-muted-foreground mt-0.5">
                 {log.completion_value.replace("|", " · ")}
@@ -79,7 +126,7 @@ export function HabitRow({
             <SevenDayGrid completedDates={weekCompletedDates} />
           </div>
         </div>
-      </div>
+      </motion.div>
     );
   }
 
@@ -90,14 +137,21 @@ export function HabitRow({
         <div className="flex items-start gap-3">
           <div className="mt-0.5 w-5 h-5 rounded-full border-2 border-foreground shrink-0" />
           <div className="flex-1 min-w-0">
-            <p className="text-sm font-semibold">{habit.name}</p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-sm font-semibold">{habit.name}</p>
+              <StreakBadge streak={streak} />
+            </div>
+            {GoalTag}
             {habit.description && (
               <p className="text-xs text-muted-foreground mt-0.5">{habit.description}</p>
             )}
             <CompletionInput
               type={habit.completion_type}
               config={config}
-              onComplete={(val) => onComplete(val, false)}
+              onComplete={(val) => {
+                haptic("medium");
+                onComplete(val, false);
+              }}
             />
             <SevenDayGrid completedDates={weekCompletedDates} />
           </div>
@@ -119,7 +173,11 @@ export function HabitRow({
       <div className="flex items-start gap-3">
         <div className="mt-0.5 w-5 h-5 rounded-full border border-border shrink-0" />
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium">{habit.name}</p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-sm font-medium">{habit.name}</p>
+            <StreakBadge streak={streak} />
+          </div>
+          {GoalTag}
 
           {/* Out-of-sequence warning */}
           {showWarning && !oosActive && (

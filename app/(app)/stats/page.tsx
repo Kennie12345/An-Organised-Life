@@ -12,7 +12,7 @@ import {
   type DbHabitLog,
 } from "@/db";
 import { xpRequiredForLevel } from "@/utils/leveling";
-import { PetSprite } from "@/components/pet-sprite";
+import { PetScene } from "@/components/pet/pet-scene";
 
 /* ── Types ── */
 

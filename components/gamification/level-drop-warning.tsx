@@ -1,22 +1,31 @@
 "use client";
 
 import { motion, AnimatePresence } from "framer-motion";
-import { Star } from "lucide-react";
+import { TrendingDown } from "lucide-react";
+import { useEffect } from "react";
+import { playSound } from "@/lib/sounds";
+import { haptic } from "@/lib/haptics";
 
-interface LevelUpCelebrationProps {
+interface LevelDropWarningProps {
   level: number;
   show: boolean;
   onDismiss: () => void;
 }
 
-export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebrationProps) {
+export function LevelDropWarning({ level, show, onDismiss }: LevelDropWarningProps) {
+  useEffect(() => {
+    if (show) {
+      playSound("levelDrop");
+      haptic("heavy");
+    }
+  }, [show]);
   return (
     <AnimatePresence>
       {show && (
         <>
           {/* Overlay */}
           <motion.div
-            key="levelup-overlay"
+            key="leveldrop-overlay"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
@@ -26,7 +35,7 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
 
           {/* Bottom sheet */}
           <motion.div
-            key="levelup-sheet"
+            key="leveldrop-sheet"
             initial={{ y: "100%" }}
             animate={{ y: 0 }}
             exit={{ y: "100%" }}
@@ -38,15 +47,15 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
             {/* Pill handle */}
             <div className="w-10 h-1 rounded-full bg-border mx-auto mb-6" />
 
-            {/* Star icon */}
+            {/* Icon */}
             <motion.div
-              initial={{ scale: 0, rotate: -20 }}
-              animate={{ scale: [0, 1.4, 0.9, 1.15, 1], rotate: [-20, 10, -5, 2, 0] }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
+              initial={{ scale: 0 }}
+              animate={{ scale: [0, 1.1, 0.95, 1] }}
+              transition={{ duration: 0.5, ease: "easeOut" }}
               className="flex justify-center mb-4"
             >
-              <div className="w-20 h-20 rounded-3xl bg-primary flex items-center justify-center shadow-lg">
-                <Star className="w-10 h-10 text-amber-300" strokeWidth={1.5} fill="currentColor" />
+              <div className="w-20 h-20 rounded-3xl bg-muted flex items-center justify-center">
+                <TrendingDown className="w-10 h-10 text-muted-foreground" strokeWidth={1.5} />
               </div>
             </motion.div>
 
@@ -54,15 +63,15 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
             <motion.div
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
+              transition={{ delay: 0.3 }}
               className="text-center mb-6"
             >
               <p className="text-xs font-bold tracking-widest text-muted-foreground mb-2">
-                LEVEL UP
+                LEVEL DROP
               </p>
               <p className="text-4xl font-bold mb-1">Level {level}</p>
               <p className="text-sm text-muted-foreground">
-                Your pet is growing stronger.
+                Your pet needs more care. Complete habits to recover.
               </p>
             </motion.div>
 
@@ -70,11 +79,11 @@ export function LevelUpCelebration({ level, show, onDismiss }: LevelUpCelebratio
             <motion.button
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
-              transition={{ delay: 0.7 }}
+              transition={{ delay: 0.5 }}
               onClick={onDismiss}
-              className="w-full rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground active:opacity-70"
+              className="w-full rounded-2xl border border-border py-4 text-sm font-medium text-foreground active:opacity-70"
             >
-              Continue
+              Got it
             </motion.button>
           </motion.div>
         </>

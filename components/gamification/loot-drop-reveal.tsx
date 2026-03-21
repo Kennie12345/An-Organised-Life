@@ -2,6 +2,7 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { Gift } from "lucide-react";
+import { Sparkles } from "@/components/gamification/sparkles";
 import type { DbLootDropCatalog } from "@/db";
 
 const TYPE_LABELS: Record<string, string> = {
@@ -9,6 +10,13 @@ const TYPE_LABELS: Record<string, string> = {
   stat_boost:   "STAT BOOST",
   rested_bonus: "RESTED BONUS",
   fortune:      "FORTUNE",
+};
+
+const TYPE_COLORS: Record<string, { bg: string; glow: string }> = {
+  xp_surge:     { bg: "from-violet-500 to-purple-600", glow: "shadow-violet-500/30" },
+  stat_boost:   { bg: "from-emerald-500 to-green-600", glow: "shadow-emerald-500/30" },
+  rested_bonus: { bg: "from-sky-500 to-blue-600", glow: "shadow-sky-500/30" },
+  fortune:      { bg: "from-amber-500 to-orange-600", glow: "shadow-amber-500/30" },
 };
 
 function formatPayload(type: string, payload: unknown): string {
@@ -36,6 +44,7 @@ interface LootDropRevealProps {
 export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
   const typeLabel = TYPE_LABELS[catalog.type] ?? catalog.type.toUpperCase();
   const payloadLine = formatPayload(catalog.type, catalog.payload);
+  const colors = TYPE_COLORS[catalog.type] ?? TYPE_COLORS.fortune;
 
   return (
     <AnimatePresence>
@@ -63,15 +72,18 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
         {/* Pill handle */}
         <div className="w-10 h-1 rounded-full bg-border mx-auto mb-6" />
 
-        {/* Bouncing icon */}
+        {/* Bouncing icon with sparkles */}
         <motion.div
           initial={{ scale: 0, rotate: -15 }}
           animate={{ scale: [0, 1.3, 0.9, 1.1, 1], rotate: [-15, 8, -4, 2, 0] }}
           transition={{ duration: 0.7, ease: "easeOut" }}
           className="flex justify-center mb-4"
         >
-          <div className="w-20 h-20 rounded-3xl bg-amber-500 flex items-center justify-center shadow-lg">
-            <Gift className="w-10 h-10 text-white" strokeWidth={1.5} />
+          <div className="relative">
+            <div className={`w-20 h-20 rounded-3xl bg-gradient-to-br ${colors.bg} flex items-center justify-center shadow-lg ${colors.glow}`}>
+              <Gift className="w-10 h-10 text-white" strokeWidth={1.5} />
+            </div>
+            <Sparkles show count={14} />
           </div>
         </motion.div>
 
@@ -85,7 +97,7 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
           <p className="text-xs font-bold tracking-widest text-muted-foreground mb-1">
             LOOT DROP
           </p>
-          <span className="inline-block text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-amber-500 text-white">
+          <span className={`inline-block text-[10px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-gradient-to-r ${colors.bg} text-white`}>
             {typeLabel}
           </span>
         </motion.div>
@@ -112,7 +124,7 @@ export function LootDropReveal({ catalog, onCollect }: LootDropRevealProps) {
           animate={{ opacity: 1 }}
           transition={{ delay: 0.7 }}
           onClick={onCollect}
-          className="w-full rounded-2xl bg-primary py-4 text-sm font-bold text-primary-foreground active:opacity-70"
+          className={`w-full rounded-2xl bg-gradient-to-r ${colors.bg} py-4 text-sm font-bold text-white active:opacity-70 shadow-lg ${colors.glow}`}
         >
           Collect
         </motion.button>

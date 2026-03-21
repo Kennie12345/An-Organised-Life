@@ -3,9 +3,10 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { db } from "@/db";
-import { MorningPlanning } from "@/components/morning-planning";
-import { HabitChecklist } from "@/components/habit-checklist";
-import { EveningCheckIn } from "@/components/evening-checkin";
+import { MorningPlanning } from "@/components/daily/morning-planning";
+import { HabitChecklist } from "@/components/habits/habit-checklist";
+import { EveningCheckIn } from "@/components/daily/evening-checkin";
+import { MiniPetBar } from "@/components/pet/mini-pet-bar";
 
 type PageState = "loading" | "plan" | "checklist" | "evening" | "done";
 

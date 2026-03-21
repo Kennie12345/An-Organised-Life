@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { db } from "@/db";
 import { uuid } from "@/utils/uuid";
-import type { DbXpEvent, DbHabitLog, DbDailyPlan, DbGoal } from "@/db";
+import type { DbXpEvent, DbHabitLog, DbDailyPlan, DbGoal, DbGoalStakeEffect, DbStat } from "@/db";
 
 const MOODS = [
   { value: 1, emoji: "😔", label: "Rough" },
@@ -65,6 +65,7 @@ interface MorningPlanningProps {
 export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
   const [summary, setSummary] = useState<YesterdaySummary | null>(null);
   const [activeGoals, setActiveGoals] = useState<DbGoal[]>([]);
+  const [goalStakes, setGoalStakes] = useState<Record<string, Array<{ statName: string; color: string; value: number; trigger: string }>>>({});
   const [focusGoalId, setFocusGoalId] = useState<string | null>(null);
   const [adHocIntentions, setAdHocIntentions] = useState<AdHocIntention[]>([]);
   const [mood, setMood] = useState<number | null>(null);
@@ -88,6 +89,25 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
       ]);
       setSummary(summ);
       setActiveGoals(goals);
+
+      // Load stakes for each goal
+      if (goals.length > 0) {
+        const [allStakes, stats] = await Promise.all([
+          db.goal_stake_effects.toArray(),
+          db.stats.where("user_id").equals(userId).toArray(),
+        ]);
+        const statMap = new Map(stats.map((s) => [s.id, s]));
+        const stakesByGoal: Record<string, Array<{ statName: string; color: string; value: number; trigger: string }>> = {};
+        for (const goal of goals) {
+          stakesByGoal[goal.id] = allStakes
+            .filter((s) => s.goal_id === goal.id)
+            .map((s) => {
+              const stat = statMap.get(s.stat_id);
+              return { statName: stat?.name ?? "?", color: stat?.color ?? "#888", value: s.effect_value, trigger: s.trigger };
+            });
+        }
+        setGoalStakes(stakesByGoal);
+      }
     }
     load();
   }, [userId]);
@@ -198,9 +218,29 @@ export function MorningPlanning({ userId, onComplete }: MorningPlanningProps) {
               }`}
             >
               <p className="text-sm font-medium">{goal.name}</p>
-              <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
-                {goal.why}
-              </p>
+              {goal.why && (
+                <p className="text-xs text-muted-foreground mt-0.5 line-clamp-1">
+                  {goal.why}
+                </p>
+              )}
+              {goalStakes[goal.id] && goalStakes[goal.id].length > 0 && (
+                <div className="flex gap-2 mt-1.5">
+                  {goalStakes[goal.id]
+                    .filter((s) => s.trigger === "success")
+                    .map((s, i) => (
+                      <span key={`s${i}`} className="text-[10px] font-medium" style={{ color: "rgb(34 197 94)" }}>
+                        {s.statName} +{s.value}
+                      </span>
+                    ))}
+                  {goalStakes[goal.id]
+                    .filter((s) => s.trigger === "failure")
+                    .map((s, i) => (
+                      <span key={`f${i}`} className="text-[10px] font-medium" style={{ color: "rgb(239 68 68)" }}>
+                        {s.statName} {s.value}
+                      </span>
+                    ))}
+                </div>
+              )}
             </button>
           ))
         )}
